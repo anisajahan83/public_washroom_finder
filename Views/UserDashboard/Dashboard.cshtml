@@ -1,1 +1,424 @@
-﻿
+﻿@{
+    ViewBag.Title = "User Dashboard - SE1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SE1.Controllers.UserDashboardController.DashboardStats
+
+<div class="dashboard-page">
+    <div class="container">
+        <div class="dashboard-wrapper">
+
+           
+            <div class="dashboard-left">
+                <div class="stats-grid">
+                    <div class="stat-card" onclick="location.href='/UserDashboard/Nearby'">
+                        <div class="stat-icon">
+                            <i class="fas fa-search-location"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number">@Model.NearbyCount</span>
+                            <span class="stat-label">Nearby Washrooms</span>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="location.href='/UserDashboard/Favorites'">
+                        <div class="stat-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number">@Model.FavoriteCount</span>
+                            <span class="stat-label">Favorites</span>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="location.href='/UserDashboard/MyRatings'">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number">@Model.RatingCount</span>
+                            <span class="stat-label">My Ratings</span>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="location.href='/UserDashboard/MyReports'">
+                        <div class="stat-icon">
+                            <i class="fas fa-flag"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number">@Model.ReportCount</span>
+                            <span class="stat-label">My Reports</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+           
+            <div class="dashboard-right">
+               
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="profile-info">
+                        <h2>Welcome, <span>@ViewBag.UserName</span>! 🎉</h2>
+                        <p><i class="fas fa-envelope"></i> @ViewBag.UserEmail</p>
+                        <p><i class="fas fa-id-badge"></i> User ID: @ViewBag.UserId</p>
+                    </div>
+                </div>
+
+                
+                <div class="quick-actions">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    <ul class="action-list">
+                        <li>
+                            <a href="/UserDashboard/Nearby" class="action-link">
+                                <span class="action-icon"><i class="fas fa-search-location"></i></span>
+                                <span class="action-name">Find Nearby</span>
+                                <span class="action-arrow"><i class="fas fa-chevron-right"></i></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/UserDashboard/Favorites" class="action-link">
+                                <span class="action-icon"><i class="fas fa-heart"></i></span>
+                                <span class="action-name">My Favorites</span>
+                                <span class="action-arrow"><i class="fas fa-chevron-right"></i></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/UserDashboard/MyRatings" class="action-link">
+                                <span class="action-icon"><i class="fas fa-star"></i></span>
+                                <span class="action-name">My Ratings</span>
+                                <span class="action-arrow"><i class="fas fa-chevron-right"></i></span>
+                            </a>
+                        </li>
+                        <li>
+                      
+                            <a href="/UserDashboard/MyReports" class="action-link">
+                                <span class="action-icon"><i class="fas fa-flag"></i></span>
+                                <span class="action-name">My Reports</span>
+                                <span class="action-arrow"><i class="fas fa-chevron-right"></i></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/UserDashboard/EditProfile" class="action-link">
+                                <span class="action-icon"><i class="fas fa-user-edit"></i></span>
+                                <span class="action-name">Edit Profile</span>
+                                <span class="action-arrow"><i class="fas fa-chevron-right"></i></span>
+                            </a>
+                        </li>
+                        <li class="logout-item">
+                            <a href="/Home/Logout" class="action-link logout-link">
+                                <span class="action-icon"><i class="fas fa-sign-out-alt"></i></span>
+                                <span class="action-name">Logout</span>
+                                <span class="action-arrow"><i class="fas fa-chevron-right"></i></span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="back-home">
+                    <a href="/" class="btn-back-home">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .dashboard-page {
+        padding: 40px 0 60px;
+        background: #f4f7fc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .dashboard-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 30px;
+        align-items: start;
+    }
+
+    .dashboard-left {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .stat-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 24px 20px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.3s;
+        cursor: pointer;
+        border: 1px solid #f1f5f9;
+        border-left: 4px solid #2a9d8f;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+        }
+
+        .stat-card .stat-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(42, 157, 143, 0.08);
+            border-radius: 12px;
+            font-size: 1.5rem;
+            color: #2a9d8f;
+            flex-shrink: 0;
+        }
+
+        .stat-card .stat-info {
+            flex: 1;
+        }
+
+        .stat-card .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f3b5e;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+    .dashboard-right {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        position: sticky;
+        top: 100px;
+    }
+
+    .profile-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 30px 25px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        text-align: center;
+        border: 1px solid #f1f5f9;
+    }
+
+    .profile-avatar i {
+        font-size: 5rem;
+        color: #2a9d8f;
+        margin-bottom: 10px;
+    }
+
+    .profile-info h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #0a2a3f;
+        margin: 0 0 4px;
+    }
+
+        .profile-info h2 span {
+            color: #2a9d8f;
+        }
+
+    .profile-info p {
+        color: #64748b;
+        margin: 2px 0;
+        font-size: 0.9rem;
+    }
+
+        .profile-info p i {
+            color: #2a9d8f;
+            width: 18px;
+            margin-right: 6px;
+        }
+
+    .quick-actions {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 20px 0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        border: 1px solid #f1f5f9;
+    }
+
+        .quick-actions h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            padding: 0 20px 12px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            margin: 0;
+        }
+
+            .quick-actions h3 i {
+                color: #2a9d8f;
+                margin-right: 8px;
+            }
+
+    .action-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .action-list li {
+            border-bottom: 1px solid #f8fafc;
+        }
+
+            .action-list li:last-child {
+                border-bottom: none;
+            }
+
+    .action-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        text-decoration: none;
+        color: #1e293b;
+        transition: all 0.2s;
+        gap: 12px;
+    }
+
+        .action-link:hover {
+            background: #f8fafc;
+            padding-left: 24px;
+        }
+
+        .action-link .action-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(42, 157, 143, 0.08);
+            border-radius: 8px;
+            color: #2a9d8f;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .action-link .action-name {
+            flex: 1;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .action-link .action-arrow {
+            color: #cbd5e1;
+            font-size: 0.8rem;
+            transition: transform 0.2s;
+        }
+
+        .action-link:hover .action-arrow {
+            transform: translateX(4px);
+            color: #2a9d8f;
+        }
+
+    .logout-item .action-link:hover {
+        background: #fef2f0;
+    }
+
+    .logout-item .action-icon {
+        background: rgba(231, 111, 81, 0.08);
+        color: #e76f51;
+    }
+
+    .logout-item .action-link:hover .action-arrow {
+        color: #e76f51;
+    }
+
+    .back-home {
+        text-align: center;
+    }
+
+    .btn-back-home {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 24px;
+        background: #ffffff;
+        color: #0f3b5e;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 500;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+    }
+
+        .btn-back-home:hover {
+            background: #0f3b5e;
+            color: white;
+            border-color: #0f3b5e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 59, 94, 0.20);
+        }
+
+    @@media (max-width: 992px) {
+        .dashboard-wrapper {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-right {
+            position: static;
+            order: 1;
+        }
+
+        .dashboard-left {
+            order: 2;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .dashboard-wrapper {
+            padding: 0 16px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-card {
+            padding: 20px;
+        }
+
+        .profile-avatar i {
+            font-size: 4rem;
+        }
+
+        .profile-info h2 {
+            font-size: 1.1rem;
+        }
+
+        .action-link {
+            padding: 10px 16px;
+        }
+    }
+</style>
+
+<script>
+    console.log('🚻 SE1 - User Dashboard Loaded');
+    console.log('👤 Welcome, @ViewBag.UserName!');
+</script>
