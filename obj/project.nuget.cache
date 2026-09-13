@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "cXTfoEWcv+s=",
+  "success": true,
+  "projectFilePath": "D:\\SDPproject\\SE1\\SE1\\SE1\\SE1.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Anisa\\.nuget\\packages\\microsoft.aspnetcore.authentication.google\\10.0.12\\microsoft.aspnetcore.authentication.google.10.0.12.nupkg.sha512",
+    "C:\\Users\\Anisa\\.nuget\\packages\\npgsql\\10.0.3\\npgsql.10.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<NoWarn>NU1510;CS8618;CS8625;CS8600;CS8601;CS8602;CS8603;CS8604;CS8619;CS8629;CS8605;CS0103</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.12" />
+		<PackageReference Include="Npgsql" Version="10.0.3" />
+	</ItemGroup>
+
+</Project>
