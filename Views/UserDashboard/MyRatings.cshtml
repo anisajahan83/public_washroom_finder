@@ -1,1 +1,327 @@
-﻿
+﻿@{
+    ViewBag.Title = "My Ratings - SE1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model List<SE1.Controllers.UserDashboardController.UserRatingViewModel>
+
+<div class="ratings-page">
+    <div class="container">
+        <div class="ratings-card">
+
+           
+            <div class="page-header">
+                <div>
+                    <h2><i class="fas fa-star"></i> My Ratings</h2>
+                    <p>All the washrooms you have rated.</p>
+                </div>
+                <a href="/UserDashboard/Dashboard" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="ratings-list">
+                    @foreach (var item in Model)
+                    {
+                        <div class="rating-item" onclick="location.href='/UserDashboard/Details/@item.WashroomId'">
+                            <div class="rating-image">
+                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl" alt="@item.WashroomName">
+                                }
+                                else
+                                {
+                                    <div class="no-image"><i class="fas fa-toilet"></i></div>
+                                }
+                            </div>
+                            <div class="rating-info">
+                                <h3>@item.WashroomName</h3>
+                                <p class="address"><i class="fas fa-map-marker-alt"></i> @item.WashroomAddress</p>
+                                <div class="rating-stars">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="fas fa-star @(i <= item.Rating ? "filled" : "")"></i>
+                                    }
+                                    <span class="rating-value">@item.Rating / 5</span>
+                                </div>
+                                @if (!string.IsNullOrEmpty(item.Comment))
+                                {
+                                    <p class="comment">"@item.Comment"</p>
+                                }
+                                <span class="date"><i class="fas fa-calendar"></i> @item.CreatedAt.ToString("dd MMM yyyy")</span>
+                                @if (item.UpdatedAt.HasValue && item.UpdatedAt != item.CreatedAt)
+                                {
+                                    <span class="date updated">(Updated: @item.UpdatedAt.Value.ToString("dd MMM yyyy"))</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-star-half-alt"></i>
+                    <h4>No Ratings Yet</h4>
+                    <p>You haven't rated any washroom yet. Visit a washroom and share your experience!</p>
+                    <a href="/UserDashboard/Nearby" class="btn-find">
+                        <i class="fas fa-search-location"></i> Find Nearby Washrooms
+                    </a>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .ratings-page {
+        padding: 40px 0 60px;
+        background: #f4f7fc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .ratings-card {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 30px 35px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+        .page-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0;
+        }
+
+            .page-header h2 i {
+                color: #f59e0b;
+                margin-right: 8px;
+            }
+
+        .page-header p {
+            color: #64748b;
+            margin: 0;
+        }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-back:hover {
+            background: #e2e8f0;
+            color: #0f3b5e;
+        }
+
+    .ratings-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .rating-item {
+        display: flex;
+        gap: 16px;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+        .rating-item:hover {
+            border-color: #2a9d8f;
+            box-shadow: 0 4px 12px rgba(42, 157, 143, 0.08);
+            transform: translateX(4px);
+        }
+
+    .rating-image {
+        width: 80px;
+        height: 80px;
+        flex-shrink: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .rating-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .no-image {
+        font-size: 2rem;
+        color: #94a3b8;
+    }
+
+    .rating-info {
+        flex: 1;
+    }
+
+        .rating-info h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0 0 2px;
+        }
+
+        .rating-info .address {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin: 0 0 6px;
+        }
+
+            .rating-info .address i {
+                color: #2a9d8f;
+                margin-right: 4px;
+            }
+
+    .rating-stars {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        margin-bottom: 4px;
+    }
+
+        .rating-stars i {
+            color: #cbd5e1;
+            font-size: 1rem;
+        }
+
+            .rating-stars i.filled {
+                color: #f59e0b;
+            }
+
+        .rating-stars .rating-value {
+            font-weight: 600;
+            color: #0a2a3f;
+            margin-left: 6px;
+            font-size: 0.85rem;
+        }
+
+    .comment {
+        color: #475569;
+        font-style: italic;
+        margin: 4px 0;
+        font-size: 0.9rem;
+    }
+
+    .date {
+        color: #94a3b8;
+        font-size: 0.75rem;
+    }
+
+        .date i {
+            margin-right: 4px;
+        }
+
+        .date.updated {
+            color: #64748b;
+            margin-left: 8px;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h4 {
+            font-size: 1.3rem;
+            color: #0a2a3f;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+    .btn-find {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        background: #0f3b5e;
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+        .btn-find:hover {
+            background: #1a4f77;
+            transform: translateY(-3px);
+            color: white;
+            box-shadow: 0 6px 20px rgba(15, 59, 94, 0.25);
+        }
+
+    
+    @@media (max-width: 768px) {
+        .ratings-card {
+            padding: 20px 16px;
+            margin: 0 16px;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .rating-item {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .rating-image {
+            width: 100%;
+            height: 120px;
+        }
+
+        .rating-stars {
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    console.log('🚻 SE1 - My Ratings Loaded');
+</script>
