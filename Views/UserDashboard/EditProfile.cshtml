@@ -1,1 +1,691 @@
-﻿
+﻿@{
+    ViewBag.Title = "Edit Profile - SE1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SE1.Controllers.UserDashboardController.UserProfileViewModel
+
+<div class="edit-profile-page">
+    <div class="container">
+        <div class="edit-card">
+
+            
+            <div class="edit-header">
+                <div>
+                    <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+                    <p>Update your personal information</p>
+                </div>
+                <a href="/UserDashboard/Dashboard" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+           
+            @if (!string.IsNullOrEmpty(ViewBag.Error))
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> @ViewBag.Error
+                </div>
+            }
+
+            
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> @TempData["Success"]
+                </div>
+            }
+
+            <form method="post" action="/UserDashboard/EditProfile" class="edit-form" id="editProfileForm">
+
+                
+                <div class="form-group">
+                    <label for="fullName">
+                        <i class="fas fa-user"></i> Full Name <span class="required">*</span>
+                    </label>
+                    <input type="text"
+                           id="fullName"
+                           name="fullName"
+                           class="form-control"
+                           value="@Model.FullName"
+                           placeholder="Enter your full name"
+                           required>
+                    <small class="form-text">Minimum 3 letters, only letters and spaces</small>
+                </div>
+
+                
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i> Email Address <span class="required">*</span>
+                    </label>
+                    <input type="email"
+                           id="email"
+                           name="email"
+                           class="form-control"
+                           value="@Model.Email"
+                           placeholder="Enter your email address"
+                           required>
+                    <small class="form-text">Must be @@gmail.com or @@yahoo.com</small>
+                </div>
+
+               
+                <div class="form-group">
+                    <label for="mobile">
+                        <i class="fas fa-phone"></i> Mobile Number <span class="required">*</span>
+                    </label>
+                    <input type="tel"
+                           id="mobile"
+                           name="mobile"
+                           class="form-control"
+                           value="@Model.Mobile"
+                           placeholder="Enter 11 digit mobile number"
+                           maxlength="11"
+                           inputmode="numeric"
+                           required>
+                    <small class="form-text">Must start with 01 and be exactly 11 digits</small>
+                </div>
+
+                
+                <div class="form-group">
+                    <label for="location">
+                        <i class="fas fa-map-marker-alt"></i> Location <span class="required">*</span>
+                    </label>
+
+                    <div class="location-wrapper">
+                        <input type="text"
+                               id="location"
+                               name="location"
+                               class="form-control"
+                               value="@Model.Location"
+                               placeholder="Search your location..."
+                               autocomplete="off"
+                               required>
+                        <button type="button"
+                                class="btn-detect"
+                                onclick="detectCurrentLocation()"
+                                title="Detect Current Location">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                    </div>
+                    <small class="form-text" id="locationStatus">
+                        Start typing to search, or click <i class="fas fa-crosshairs"></i> to detect
+                    </small>
+
+                   
+                    <div id="mapContainer" style="display:none;">
+                        <div id="map" style="height:200px; border-radius:12px; margin-top:10px; border:1px solid #e2e8f0;"></div>
+                        <div class="location-details">
+                            <p><i class="fas fa-map-pin"></i> <strong>Selected:</strong> <span id="selectedAddress">None</span></p>
+                            <p><i class="fas fa-globe"></i> <strong>Coords:</strong> <span id="selectedCoords">None</span></p>
+                        </div>
+                    </div>
+
+                    
+                    <input type="hidden" id="latitude" name="latitude" value="">
+                    <input type="hidden" id="longitude" name="longitude" value="">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a href="/UserDashboard/Dashboard" class="btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+
+            <div class="change-password-section">
+                <a href="/UserDashboard/ChangePassword" class="btn-change-password">
+                    <i class="fas fa-key"></i> Change Password
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .edit-profile-page {
+        padding: 40px 0 60px;
+        background: #f4f7fc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .edit-card {
+        max-width: 700px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 35px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .edit-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+        .edit-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0 0 4px;
+        }
+
+            .edit-header h2 i {
+                color: #2a9d8f;
+                margin-right: 8px;
+            }
+
+        .edit-header p {
+            color: #64748b;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-back:hover {
+            background: #e2e8f0;
+            color: #0f3b5e;
+        }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+    }
+
+    .alert-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    .alert-success {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+            .form-group label i {
+                color: #2a9d8f;
+                margin-right: 6px;
+            }
+
+    .required {
+        color: #e76f51;
+        font-weight: 700;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        background: #f8fafc;
+        color: #1e293b;
+        box-sizing: border-box;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #2a9d8f;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(42, 157, 143, 0.10);
+        }
+
+        .form-control[readonly] {
+            background: #f1f5f9;
+            cursor: not-allowed;
+            color: #64748b;
+        }
+
+    .form-text {
+        display: block;
+        color: #94a3b8;
+        font-size: 0.75rem;
+        margin-top: 4px;
+    }
+
+    
+    .location-wrapper {
+        display: flex;
+        gap: 8px;
+    }
+
+        .location-wrapper .form-control {
+            flex: 1;
+        }
+
+    .btn-detect {
+        padding: 0 18px;
+        background: #2a9d8f;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+        .btn-detect:hover {
+            background: #1a7a6f;
+            transform: scale(1.02);
+        }
+
+        .btn-detect:active {
+            transform: scale(0.95);
+        }
+
+    
+    #mapContainer {
+        margin-top: 12px;
+        animation: slideDown 0.3s ease;
+    }
+
+   
+
+    .location-details {
+        background: #f8fafc;
+        padding: 10px 14px;
+        border-radius: 10px;
+        margin-top: 8px;
+        border: 1px solid #e2e8f0;
+        font-size: 0.85rem;
+    }
+
+        .location-details p {
+            margin: 4px 0;
+            color: #475569;
+        }
+
+            .location-details p i {
+                color: #2a9d8f;
+                width: 18px;
+            }
+
+        .location-details strong {
+            color: #0f3b5e;
+        }
+
+    #selectedAddress {
+        color: #2a9d8f;
+        font-weight: 500;
+    }
+
+   
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .btn-save {
+        flex: 1;
+        padding: 14px;
+        background: #0f3b5e;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+        .btn-save:hover {
+            background: #1a4f77;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(15, 59, 94, 0.25);
+        }
+
+    .btn-cancel {
+        padding: 14px 28px;
+        background: #f1f5f9;
+        color: #475569;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+        .btn-cancel:hover {
+            background: #e2e8f0;
+            color: #0f3b5e;
+        }
+
+   
+    .change-password-section {
+        text-align: center;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .btn-change-password {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 24px;
+        background: #ffffff;
+        color: #2a9d8f;
+        border: 1.5px solid #2a9d8f;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        font-size: 0.95rem;
+    }
+
+        .btn-change-password:hover {
+            background: #2a9d8f;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+   
+</style>
+
+<script>
+    
+    let map;
+    let marker;
+    let autocomplete;
+    let geocoder;
+
+    function initMap() {
+        const locationInput = document.getElementById('location');
+        const mapContainer = document.getElementById('mapContainer');
+
+        if (!locationInput) return;
+
+        
+        geocoder = new google.maps.Geocoder();
+
+       
+        autocomplete = new google.maps.places.Autocomplete(locationInput, {
+            types: ['geocode', 'establishment'],
+            componentRestrictions: { country: 'bd' }
+        });
+
+        
+        autocomplete.addListener('place_changed', function() {
+            const place = autocomplete.getPlace();
+
+            if (!place.geometry) {
+                
+                geocodeAddress(locationInput.value);
+                return;
+            }
+
+            
+            mapContainer.style.display = 'block';
+
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            const address = place.formatted_address || locationInput.value;
+
+            
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+            document.getElementById('selectedAddress').textContent = address;
+            document.getElementById('selectedCoords').textContent = lat.toFixed(6) + ', ' + lng.toFixed(6);
+
+           
+            updateMap(lat, lng, address);
+
+          
+            document.getElementById('locationStatus').innerHTML = '✅ Location set: ' + address;
+            document.getElementById('locationStatus').style.color = '#065f46';
+        });
+
+        
+        if (locationInput.value && locationInput.value.trim() !== '') {
+            geocodeAddress(locationInput.value);
+        }
+    }
+
+    
+    function geocodeAddress(address) {
+        if (!geocoder) {
+            geocoder = new google.maps.Geocoder();
+        }
+
+        geocoder.geocode(
+            { address: address, componentRestrictions: { country: 'bd' } },
+            function(results, status) {
+                if (status === 'OK' && results[0]) {
+                    const place = results[0];
+                    const mapContainer = document.getElementById('mapContainer');
+                    mapContainer.style.display = 'block';
+
+                    const lat = place.geometry.location.lat();
+                    const lng = place.geometry.location.lng();
+
+                    document.getElementById('latitude').value = lat;
+                    document.getElementById('longitude').value = lng;
+                    document.getElementById('selectedAddress').textContent = place.formatted_address;
+                    document.getElementById('selectedCoords').textContent = lat.toFixed(6) + ', ' + lng.toFixed(6);
+
+                    updateMap(lat, lng, place.formatted_address);
+
+                    document.getElementById('locationStatus').innerHTML = '✅ Location set: ' + place.formatted_address;
+                    document.getElementById('locationStatus').style.color = '#065f46';
+                } else {
+                    document.getElementById('locationStatus').innerHTML = '❌ Could not locate this address. Please select from suggestions.';
+                    document.getElementById('locationStatus').style.color = '#e76f51';
+                }
+            }
+        );
+    }
+
+   
+    function updateMap(lat, lng, address) {
+        const mapElement = document.getElementById('map');
+
+        if (!map) {
+            map = new google.maps.Map(mapElement, {
+                center: { lat: lat, lng: lng },
+                zoom: 16,
+                mapTypeId: 'roadmap'
+            });
+
+            marker = new google.maps.Marker({
+                map: map,
+                position: { lat: lat, lng: lng },
+                animation: google.maps.Animation.DROP,
+                title: address
+            });
+        } else {
+            map.setCenter({ lat: lat, lng: lng });
+            map.setZoom(16);
+            marker.setPosition({ lat: lat, lng: lng });
+            marker.setTitle(address);
+        }
+
+       
+        const infoWindow = new google.maps.InfoWindow({
+            content: '<div style="padding:6px;font-weight:600;">📍 ' + address + '</div>'
+        });
+
+        marker.addListener('click', function() {
+            infoWindow.open(map, marker);
+        });
+    }
+
+   
+    function detectCurrentLocation() {
+        const locationInput = document.getElementById('location');
+        const locationStatus = document.getElementById('locationStatus');
+        const mapContainer = document.getElementById('mapContainer');
+
+        if (!navigator.geolocation) {
+            locationStatus.innerHTML = '⚠️ Geolocation is not supported by your browser';
+            locationStatus.style.color = '#e76f51';
+            return;
+        }
+
+        locationStatus.innerHTML = '⏳ Detecting your current location...';
+        locationStatus.style.color = '#f59e0b';
+
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+
+                
+                if (!geocoder) {
+                    geocoder = new google.maps.Geocoder();
+                }
+
+                geocoder.geocode({ location: { lat: lat, lng: lng } }, function(results, status) {
+                    if (status === 'OK' && results[0]) {
+                        const address = results[0].formatted_address;
+
+                        locationInput.value = address;
+                        document.getElementById('latitude').value = lat;
+                        document.getElementById('longitude').value = lng;
+                        document.getElementById('selectedAddress').textContent = address;
+                        document.getElementById('selectedCoords').textContent = lat.toFixed(6) + ', ' + lng.toFixed(6);
+
+                        mapContainer.style.display = 'block';
+                        updateMap(lat, lng, address);
+
+                        locationStatus.innerHTML = '✅ Location detected: ' + address;
+                        locationStatus.style.color = '#065f46';
+                    } else {
+                        locationInput.value = lat.toFixed(6) + ', ' + lng.toFixed(6);
+                        document.getElementById('latitude').value = lat;
+                        document.getElementById('longitude').value = lng;
+                        mapContainer.style.display = 'block';
+                        updateMap(lat, lng, 'Current Location');
+
+                        locationStatus.innerHTML = '✅ Location detected';
+                        locationStatus.style.color = '#065f46';
+                    }
+                });
+            },
+            function(error) {
+                let errorMsg = 'Unable to detect location. ';
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMsg += 'Please allow location access.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMsg += 'Location information unavailable.';
+                        break;
+                    case error.TIMEOUT:
+                        errorMsg += 'Location request timed out.';
+                        break;
+                    default:
+                        errorMsg += 'Please try again.';
+                        break;
+                }
+                locationStatus.innerHTML = '❌ ' + errorMsg;
+                locationStatus.style.color = '#e76f51';
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    }
+
+    
+    document.getElementById('editProfileForm').addEventListener('submit', function(e) {
+        const fullName = document.getElementById('fullName').value.trim();
+        const mobile = document.getElementById('mobile').value.trim();
+        const location = document.getElementById('location').value.trim();
+        const lat = document.getElementById('latitude').value;
+        const lng = document.getElementById('longitude').value;
+
+        
+        if (fullName.length < 3) {
+            e.preventDefault();
+            alert('⚠️ Full name must be at least 3 characters');
+            return false;
+        }
+
+     
+        if (!/^01[0-9]{9}$/.test(mobile)) {
+            e.preventDefault();
+            alert('⚠️ Mobile must start with 01 and be exactly 11 digits');
+            return false;
+        }
+
+        
+        if (!location) {
+            e.preventDefault();
+            alert('⚠️ Please set your location');
+            return false;
+        }
+
+        return true;
+    });
+
+    
+    window.addEventListener('load', function() {
+        if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
+            initMap();
+        } else {
+            console.log('⏳ Waiting for Google Maps API...');
+        }
+    });
+
+   
+    window.initMap = initMap;
+
+    console.log('🚻 SE1 - Edit Profile Page Loaded');
+</script>
