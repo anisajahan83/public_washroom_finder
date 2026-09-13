@@ -1,1 +1,390 @@
-﻿
+﻿@{
+    ViewBag.Title = "My Favorites - SE1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model List<SE1.Controllers.UserDashboardController.WashroomViewModel>
+
+<div class="favorites-page">
+    <div class="container">
+        <div class="favorites-card">
+
+            
+            <div class="page-header">
+                <div>
+                    <h2><i class="fas fa-heart"></i> My Favorites</h2>
+                    <p>Your saved washrooms for quick access.</p>
+                </div>
+                <a href="/UserDashboard/Dashboard" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="favorites-grid">
+                    @foreach (var item in Model)
+                    {
+                        <div class="favorite-card" onclick="location.href='/UserDashboard/Details/@item.WashroomId'">
+                            <div class="favorite-image">
+                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl" alt="@item.Name">
+                                }
+                                else
+                                {
+                                    <div class="no-image"><i class="fas fa-toilet"></i></div>
+                                }
+                                <div class="favorite-badge">
+                                    <i class="fas fa-heart"></i> Favorited
+                                </div>
+                            </div>
+                            <div class="favorite-info">
+                                <h3>@item.Name</h3>
+                                <p class="address"><i class="fas fa-map-marker-alt"></i> @item.Address</p>
+                                <div class="meta">
+                                    <span><i class="fas fa-star"></i> @item.AvgRating.ToString("F1")</span>
+                                    <span><i class="fas fa-money-bill"></i> @(item.UsageCost == 0 ? "Free" : "BDT " + item.UsageCost)</span>
+                                    <span><i class="fas fa-shield-alt"></i> @item.SecurityStatus</span>
+                                </div>
+                            </div>
+                            <div class="favorite-actions">
+                                <button class="btn-navigate" onclick="event.stopPropagation(); navigateTo(@item.Latitude.ToString().Replace(",", "."), @item.Longitude.ToString().Replace(",", "."))">
+                                    <i class="fas fa-map"></i> Navigate
+                                </button>
+                                <button class="btn-remove" onclick="event.stopPropagation(); removeFavorite(@item.WashroomId, this)">
+                                    <i class="fas fa-times"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-heart-broken"></i>
+                    <h4>No Favorites Yet</h4>
+                    <p>Start saving washrooms by clicking the heart icon on nearby washrooms.</p>
+                    <a href="/UserDashboard/Nearby" class="btn-find">
+                        <i class="fas fa-search-location"></i> Find Nearby Washrooms
+                    </a>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .favorites-page {
+        padding: 40px 0 60px;
+        background: #f4f7fc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .favorites-card {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 30px 35px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+        .page-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0;
+        }
+
+            .page-header h2 i {
+                color: #e76f51;
+                margin-right: 8px;
+            }
+
+        .page-header p {
+            color: #64748b;
+            margin: 0;
+        }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-back:hover {
+            background: #e2e8f0;
+            color: #0f3b5e;
+        }
+
+    .favorites-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .favorite-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+        .favorite-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            border-color: #2a9d8f;
+        }
+
+    .favorite-image {
+        position: relative;
+        height: 150px;
+        background: #e2e8f0;
+        overflow: hidden;
+    }
+
+        .favorite-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .no-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #94a3b8;
+    }
+
+    .favorite-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #e76f51;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .favorite-info {
+        padding: 16px;
+    }
+
+        .favorite-info h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0 0 4px;
+        }
+
+        .favorite-info .address {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin: 0 0 8px;
+        }
+
+            .favorite-info .address i {
+                color: #2a9d8f;
+                margin-right: 4px;
+            }
+
+        .favorite-info .meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+            .favorite-info .meta i {
+                color: #2a9d8f;
+                margin-right: 4px;
+            }
+
+    .favorite-actions {
+        padding: 12px 16px;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-navigate {
+        padding: 6px 16px;
+        background: #0f3b5e;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex: 1;
+    }
+
+        .btn-navigate:hover {
+            background: #1a4f77;
+            transform: scale(1.02);
+        }
+
+    .btn-remove {
+        padding: 6px 16px;
+        background: #fee2e2;
+        color: #991b1b;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+        .btn-remove:hover {
+            background: #fecaca;
+            transform: scale(1.02);
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h4 {
+            font-size: 1.3rem;
+            color: #0a2a3f;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+    .btn-find {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        background: #0f3b5e;
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+        .btn-find:hover {
+            background: #1a4f77;
+            transform: translateY(-3px);
+            color: white;
+            box-shadow: 0 6px 20px rgba(15, 59, 94, 0.25);
+        }
+
+    
+    @@media (max-width: 768px) {
+        .favorites-card {
+            padding: 20px 16px;
+            margin: 0 16px;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .favorites-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    function navigateTo(lat, lng) {
+        var url = 'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng;
+        window.open(url, '_blank');
+    }
+
+    function removeFavorite(washroomId, element) {
+        if (!confirm('Remove this washroom from favorites?')) return;
+
+        fetch('/UserDashboard/ToggleFavorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'washroomId=' + washroomId
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (data.success) {
+                    var card = element.closest('.favorite-card');
+                    card.style.transition = 'all 0.3s';
+                    card.style.transform = 'scale(0.9)';
+                    card.style.opacity = '0';
+                    setTimeout(function () {
+                        card.remove();
+                    }, 300);
+                    showToast('Removed from favorites.');
+                } else {
+                    showToast(data.message);
+                }
+            })
+            .catch(function (error) {
+                showToast('An error occurred.');
+            });
+    }
+
+    function showToast(message) {
+        var toast = document.getElementById('customToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'customToast';
+            toast.style.cssText = 'position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #0f3b5e; color: white; padding: 14px 28px; border-radius: 12px; font-weight: 500; box-shadow: 0 8px 30px rgba(0,0,0,0.20); display: none; z-index: 999; animation: slideUp 0.3s ease; max-width: 90%; text-align: center;';
+            document.body.appendChild(toast);
+        }
+
+        toast.innerHTML = message;
+        toast.style.display = 'block';
+
+        setTimeout(function () {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    console.log('🚻 SE1 - Favorites Loaded');
+</script>
