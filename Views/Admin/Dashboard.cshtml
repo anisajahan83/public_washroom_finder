@@ -1,1 +1,498 @@
-﻿
+﻿@{
+    ViewBag.Title = "Admin Dashboard - SE1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SE1.Controllers.AdminController.AdminStats
+
+<div class="admin-dashboard-page">
+    <div class="container">
+        <div class="admin-dashboard-wrapper">
+
+            
+            <div class="admin-dashboard-left">
+                <div class="stats-grid">
+                    
+                    <div class="stat-card total" onclick="location.href='/Admin/Washrooms'">
+                        <div class="stat-icon">
+                            <i class="fas fa-restroom"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number">@Model.TotalWashrooms</span>
+                            <span class="stat-label">Total Washrooms</span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="stat-card pending" onclick="location.href='/Admin/Washrooms'">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number">@Model.PendingWashrooms</span>
+                            <span class="stat-label">Pending Verification</span>
+                        </div>
+                    </div>
+
+                   
+                    <div class="stat-card verified" onclick="location.href='/Admin/Washrooms'">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number">@Model.VerifiedWashrooms</span>
+                            <span class="stat-label">Verified Washrooms</span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="stat-card users" onclick="location.href='/Admin/Users'">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number">@Model.TotalUsers</span>
+                            <span class="stat-label">Total Users</span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="stat-card reports" onclick="location.href='/Admin/Reports'">
+                        <div class="stat-icon">
+                            <i class="fas fa-flag"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number">@Model.TotalReports</span>
+                            <span class="stat-label">Total Reports</span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="stat-card pending-reports" onclick="location.href='/Admin/Reports'">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number">@Model.PendingReports</span>
+                            <span class="stat-label">Pending Reports</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="admin-dashboard-right">
+                
+                <div class="admin-profile-card">
+                    <div class="admin-profile-avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="admin-profile-info">
+                        <h2>Welcome, <span>@ViewBag.UserName</span>! 🛡️</h2>
+                        <p><i class="fas fa-badge"></i> Administrator</p>
+                        <p><i class="fas fa-envelope"></i> @ViewBag.UserEmail</p>
+                    </div>
+                </div>
+
+               
+                <div class="admin-quick-actions">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    <ul class="admin-action-list">
+                        <li>
+                            <a href="/Admin/Washrooms" class="admin-action-link">
+                                <span class="admin-action-icon"><i class="fas fa-list"></i></span>
+                                <span class="admin-action-name">Manage Washrooms</span>
+                                <span class="admin-action-arrow"><i class="fas fa-chevron-right"></i></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/Admin/Users" class="admin-action-link">
+                                <span class="admin-action-icon"><i class="fas fa-users-cog"></i></span>
+                                <span class="admin-action-name">Manage Users</span>
+                                <span class="admin-action-arrow"><i class="fas fa-chevron-right"></i></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/Admin/Reports" class="admin-action-link">
+                                <span class="admin-action-icon"><i class="fas fa-flag"></i></span>
+                                <span class="admin-action-name">View Reports</span>
+                                <span class="admin-action-arrow"><i class="fas fa-chevron-right"></i></span>
+                            </a>
+                        </li>
+                        <li class="admin-logout-item">
+                            <a href="/Home/Logout" class="admin-action-link logout-link">
+                                <span class="admin-action-icon"><i class="fas fa-sign-out-alt"></i></span>
+                                <span class="admin-action-name">Logout</span>
+                                <span class="admin-action-arrow"><i class="fas fa-chevron-right"></i></span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+               
+                <div class="admin-back-home">
+                    <a href="/" class="admin-btn-back-home">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .admin-dashboard-page {
+        padding: 40px 0 60px;
+        background: #f4f7fc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .admin-dashboard-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 30px;
+        align-items: start;
+    }
+
+    
+    .admin-dashboard-left {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .stat-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 24px 20px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.3s;
+        cursor: pointer;
+        border: 1px solid #f1f5f9;
+        border-left: 4px solid #2a9d8f;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+        }
+
+        .stat-card .stat-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(42, 157, 143, 0.08);
+            border-radius: 12px;
+            font-size: 1.5rem;
+            color: #2a9d8f;
+            flex-shrink: 0;
+        }
+
+        .stat-card .stat-info {
+            flex: 1;
+        }
+
+        .stat-card .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0f3b5e;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+       
+        .stat-card.total {
+            border-left-color: #3b82f6;
+        }
+
+            .stat-card.total .stat-icon {
+                color: #3b82f6;
+                background: rgba(59, 130, 246, 0.08);
+            }
+
+        .stat-card.pending {
+            border-left-color: #f59e0b;
+        }
+
+            .stat-card.pending .stat-icon {
+                color: #f59e0b;
+                background: rgba(245, 158, 11, 0.08);
+            }
+
+        .stat-card.verified {
+            border-left-color: #10b981;
+        }
+
+            .stat-card.verified .stat-icon {
+                color: #10b981;
+                background: rgba(16, 185, 129, 0.08);
+            }
+
+        .stat-card.users {
+            border-left-color: #8b5cf6;
+        }
+
+            .stat-card.users .stat-icon {
+                color: #8b5cf6;
+                background: rgba(139, 92, 246, 0.08);
+            }
+
+        .stat-card.reports {
+            border-left-color: #ec4899;
+        }
+
+            .stat-card.reports .stat-icon {
+                color: #ec4899;
+                background: rgba(236, 72, 153, 0.08);
+            }
+
+        .stat-card.pending-reports {
+            border-left-color: #e76f51;
+        }
+
+            .stat-card.pending-reports .stat-icon {
+                color: #e76f51;
+                background: rgba(231, 111, 81, 0.08);
+            }
+
+    .admin-dashboard-right {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        position: sticky;
+        top: 100px;
+    }
+
+    .admin-profile-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 30px 25px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        text-align: center;
+        border: 1px solid #f1f5f9;
+    }
+
+    .admin-profile-avatar i {
+        font-size: 5rem;
+        color: #2a9d8f;
+        margin-bottom: 10px;
+    }
+
+    .admin-profile-info h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #0a2a3f;
+        margin: 0 0 4px;
+    }
+
+        .admin-profile-info h2 span {
+            color: #2a9d8f;
+        }
+
+    .admin-profile-info p {
+        color: #64748b;
+        margin: 2px 0;
+        font-size: 0.9rem;
+    }
+
+        .admin-profile-info p i {
+            color: #2a9d8f;
+            width: 18px;
+            margin-right: 6px;
+        }
+
+    
+    .admin-quick-actions {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 20px 0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        border: 1px solid #f1f5f9;
+    }
+
+        .admin-quick-actions h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            padding: 0 20px 12px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            margin: 0;
+        }
+
+            .admin-quick-actions h3 i {
+                color: #2a9d8f;
+                margin-right: 8px;
+            }
+
+    .admin-action-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .admin-action-list li {
+            border-bottom: 1px solid #f8fafc;
+        }
+
+            .admin-action-list li:last-child {
+                border-bottom: none;
+            }
+
+    .admin-action-link {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        text-decoration: none;
+        color: #1e293b;
+        transition: all 0.2s;
+        gap: 12px;
+    }
+
+        .admin-action-link:hover {
+            background: #f8fafc;
+            padding-left: 24px;
+        }
+
+        .admin-action-link .admin-action-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(42, 157, 143, 0.08);
+            border-radius: 8px;
+            color: #2a9d8f;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .admin-action-link .admin-action-name {
+            flex: 1;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .admin-action-link .admin-action-arrow {
+            color: #cbd5e1;
+            font-size: 0.8rem;
+            transition: transform 0.2s;
+        }
+
+        .admin-action-link:hover .admin-action-arrow {
+            transform: translateX(4px);
+            color: #2a9d8f;
+        }
+
+    .admin-logout-item .admin-action-link:hover {
+        background: #fef2f0;
+    }
+
+    .admin-logout-item .admin-action-icon {
+        background: rgba(231, 111, 81, 0.08);
+        color: #e76f51;
+    }
+
+    .admin-logout-item .admin-action-link:hover .admin-action-arrow {
+        color: #e76f51;
+    }
+
+    /* Back Home */
+    .admin-back-home {
+        text-align: center;
+    }
+
+    .admin-btn-back-home {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 24px;
+        background: #ffffff;
+        color: #0f3b5e;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 500;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+    }
+
+        .admin-btn-back-home:hover {
+            background: #0f3b5e;
+            color: white;
+            border-color: #0f3b5e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 59, 94, 0.20);
+        }
+
+    
+    @@media (max-width: 992px) {
+        .admin-dashboard-wrapper {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-dashboard-right {
+            position: static;
+            order: 1;
+        }
+
+        .admin-dashboard-left {
+            order: 2;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .admin-dashboard-wrapper {
+            padding: 0 16px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-profile-card {
+            padding: 20px;
+        }
+
+        .admin-profile-avatar i {
+            font-size: 4rem;
+        }
+
+        .admin-profile-info h2 {
+            font-size: 1.1rem;
+        }
+
+        .admin-action-link {
+            padding: 10px 16px;
+        }
+    }
+</style>
+
+<script>
+    console.log('🚻 SE1 - Admin Dashboard Loaded');
+    console.log('👤 Admin: @ViewBag.UserName');
+</script>
