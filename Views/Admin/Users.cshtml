@@ -1,1 +1,213 @@
-﻿
+﻿@{
+    ViewBag.Title = "Manage Users - SE1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model List<SE1.Controllers.AdminController.UserViewModel>
+
+<div class="admin-users">
+    <div class="container">
+        <div class="admin-card">
+
+            <div class="admin-header-simple">
+                <div>
+                    <h2><i class="fas fa-users"></i> Manage Users</h2>
+                    <p>View all registered users of the system.</p>
+                </div>
+                <a href="/Admin/Dashboard" class="btn-back-admin">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-wrapper">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Mobile</th>
+                                <th>Location</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Registered</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.UserId</td>
+                                    <td><strong>@item.FullName</strong></td>
+                                    <td>@item.Email</td>
+                                    <td>@item.Mobile</td>
+                                    <td>@item.Location</td>
+                                    <td><span class="role-badge">@item.Role</span></td>
+                                    <td>
+                                        @if (item.IsActive)
+                                        {
+                                            <span class="status-active">✅ Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-inactive">❌ Inactive</span>
+                                        }
+                                    </td>
+                                    <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h4>No Users</h4>
+                    <p>There are no users registered in the system.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .admin-users {
+        padding: 40px 0 60px;
+        background: #f4f7fc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .admin-card {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 30px 35px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .admin-header-simple {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+        .admin-header-simple h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0;
+        }
+
+            .admin-header-simple h2 i {
+                color: #2a9d8f;
+                margin-right: 8px;
+            }
+
+        .admin-header-simple p {
+            color: #64748b;
+            margin: 0;
+        }
+
+    .btn-back-admin {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-back-admin:hover {
+            background: #e2e8f0;
+            color: #0f3b5e;
+        }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .user-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+        .user-table thead {
+            background: #f8fafc;
+        }
+
+        .user-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 700;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .user-table td {
+            padding: 10px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .user-table tr:hover {
+            background: #f8fafc;
+        }
+
+    .role-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        background: #dbeafe;
+        color: #1e40af;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-active {
+        color: #065f46;
+        font-weight: 600;
+    }
+
+    .status-inactive {
+        color: #991b1b;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h4 {
+            font-size: 1.3rem;
+            color: #0a2a3f;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: #94a3b8;
+        }
+
+</style>
