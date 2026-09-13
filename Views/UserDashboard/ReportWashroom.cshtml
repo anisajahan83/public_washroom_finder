@@ -1,1 +1,342 @@
-﻿
+﻿@{
+    ViewBag.Title = "Report Washroom - SE1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SE1.Controllers.UserDashboardController.ReportWashroomViewModel
+
+<div class="report-washroom-page">
+    <div class="container">
+        <div class="report-card">
+
+           
+            <div class="report-header">
+                <h2><i class="fas fa-flag"></i> Report an Issue</h2>
+                <a href="/UserDashboard/MyReports" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Reports
+                </a>
+            </div>
+
+          
+            @if (!string.IsNullOrEmpty(ViewBag.Error))
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> @ViewBag.Error
+                </div>
+            }
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> @TempData["Success"]
+                </div>
+            }
+
+           
+            <form method="post" action="/UserDashboard/ReportWashroom" class="report-form" enctype="multipart/form-data">
+
+                <div class="form-group">
+                    <label><i class="fas fa-toilet"></i> Washroom <span class="required">*</span></label>
+                    @if (Model.WashroomId > 0)
+                    {
+                        <input type="hidden" name="washroomId" value="@Model.WashroomId">
+                        <div class="washroom-info-display">
+                            <strong>@Model.WashroomName</strong>
+                            <p>@Model.WashroomAddress</p>
+                        </div>
+                        <a href="/UserDashboard/Nearby" class="btn-change-washroom">
+                            <i class="fas fa-exchange-alt"></i> Change Washroom
+                        </a>
+                    }
+                    else
+                    {
+                        <select name="washroomId" class="form-control" required>
+                            <option value="">-- Select a washroom --</option>
+                            @if (ViewBag.Washrooms != null)
+                            {
+                                foreach (var w in ViewBag.Washrooms)
+                                {
+                                    <option value="@w.WashroomId">@w.Name - @w.Address</option>
+                                }
+                            }
+                        </select>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-exclamation-triangle"></i> Issue Type <span class="required">*</span></label>
+                    <select name="issueType" class="form-control" required>
+                        <option value="">-- Select issue type --</option>
+                        <option value="Poor Cleanliness">🧹 Poor Cleanliness</option>
+                        <option value="Water Shortage">💧 Water Shortage</option>
+                        <option value="Damaged Facilities">🔧 Damaged Facilities</option>
+                        <option value="Lighting Issues">💡 Lighting Issues</option>
+                        <option value="Security Concerns">🔒 Security Concerns</option>
+                        <option value="Bathroom Not Working">🚽 Bathroom Not Working</option>
+                        <option value="Overcrowded">👥 Overcrowded</option>
+                        <option value="Staff Behavior">👤 Staff Behavior</option>
+                        <option value="Other">📌 Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-align-left"></i> Description <span class="required">*</span></label>
+                    <textarea name="description" class="form-control" rows="4" placeholder="Describe the issue in detail..." required>@Model.Description</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-image"></i> Photo (Optional)</label>
+                    <input type="file" name="photo" class="form-control-file" accept=".jpg,.jpeg,.png">
+                    <small class="form-text">Upload a photo of the issue (JPG, PNG, max 5MB)</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-paper-plane"></i> Submit Report
+                    </button>
+                    <a href="/UserDashboard/MyReports" class="btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .report-washroom-page {
+        padding: 40px 0 60px;
+        background: #f4f7fc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .report-card {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 35px 40px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .report-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+        .report-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0;
+        }
+
+            .report-header h2 i {
+                color: #e76f51;
+                margin-right: 8px;
+            }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-back:hover {
+            background: #e2e8f0;
+            color: #0f3b5e;
+        }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+    }
+
+    .alert-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    .alert-success {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+
+    .report-form .form-group {
+        margin-bottom: 18px;
+    }
+
+        .report-form .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+            .report-form .form-group label i {
+                color: #e76f51;
+                margin-right: 6px;
+            }
+
+    .required {
+        color: #e76f51;
+        font-weight: 700;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        background: #f8fafc;
+        color: #1e293b;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #e76f51;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(231, 111, 81, 0.10);
+        }
+
+    .form-control-file {
+        padding: 8px 0;
+        width: 100%;
+    }
+
+    .form-text {
+        display: block;
+        color: #94a3b8;
+        font-size: 0.8rem;
+        margin-top: 4px;
+    }
+
+    .washroom-info-display {
+        background: #f8fafc;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+    }
+
+        .washroom-info-display strong {
+            display: block;
+            color: #0a2a3f;
+        }
+
+        .washroom-info-display p {
+            color: #64748b;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+    .btn-change-washroom {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 14px;
+        margin-top: 6px;
+        background: #e2e8f0;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-change-washroom:hover {
+            background: #cbd5e1;
+        }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .btn-submit {
+        padding: 12px 32px;
+        background: #e76f51;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        justify-content: center;
+    }
+
+        .btn-submit:hover {
+            background: #d45a3a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 111, 81, 0.20);
+        }
+
+    .btn-cancel {
+        padding: 12px 32px;
+        background: #e2e8f0;
+        color: #475569;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .btn-cancel:hover {
+            background: #cbd5e1;
+            transform: translateY(-2px);
+        }
+
+    @@media (max-width: 480px) {
+        .report-card {
+            padding: 20px;
+            margin: 0 16px;
+        }
+
+        .report-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script>
+    console.log('🚻 SE1 - Report Washroom Page Loaded');
+</script>
