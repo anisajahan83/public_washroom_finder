@@ -1,1 +1,315 @@
-﻿
+﻿@{
+    ViewBag.Title = "Manage Reports - SE1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model List<SE1.Controllers.AdminController.ReportViewModel>
+
+<div class="admin-reports">
+    <div class="container">
+        <div class="admin-card">
+
+            <div class="admin-header-simple">
+                <div>
+                    <h2><i class="fas fa-flag"></i> Manage Reports</h2>
+                    <p>View and resolve user reported issues.</p>
+                </div>
+                <a href="/Admin/Dashboard" class="btn-back-admin">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            <div id="toastContainer" style="display:none;" class="toast-message"></div>
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-wrapper">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Washroom</th>
+                                <th>Issue Type</th>
+                                <th>Description</th>
+                                <th>User</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.ReportId</td>
+                                    <td><strong>@item.WashroomName</strong></td>
+                                    <td><span class="issue-badge">@item.IssueType</span></td>
+                                    <td>@(item.Description.Length > 50 ? item.Description.Substring(0, 50) + "..." : item.Description)</td>
+                                    <td>
+                                        <span class="user-name">@item.UserName</span>
+                                        <small class="user-email">@item.UserEmail</small>
+                                    </td>
+                                    <td>
+                                        @if (item.Status == "Resolved")
+                                        {
+                                            <span class="status-resolved">✅ Resolved</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-pending">⏳ Pending</span>
+                                        }
+                                    </td>
+                                    <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                                    <td>
+                                        @if (item.Status != "Resolved")
+                                        {
+                                            <button class="btn-resolve" onclick="resolveReport(@item.ReportId)">
+                                                <i class="fas fa-check"></i> Resolve
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-flag"></i>
+                    <h4>No Reports</h4>
+                    <p>There are no reports submitted by users.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .admin-reports {
+        padding: 40px 0 60px;
+        background: #f4f7fc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .admin-card {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 30px 35px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .admin-header-simple {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+        .admin-header-simple h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0;
+        }
+
+            .admin-header-simple h2 i {
+                color: #2a9d8f;
+                margin-right: 8px;
+            }
+
+        .admin-header-simple p {
+            color: #64748b;
+            margin: 0;
+        }
+
+    .btn-back-admin {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-back-admin:hover {
+            background: #e2e8f0;
+            color: #0f3b5e;
+        }
+
+    .toast-message {
+        padding: 12px 18px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .toast-message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .toast-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+        .report-table thead {
+            background: #f8fafc;
+        }
+
+        .report-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 700;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .report-table td {
+            padding: 10px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .report-table tr:hover {
+            background: #f8fafc;
+        }
+
+    .issue-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        background: #fef3c7;
+        color: #92400e;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .user-name {
+        display: block;
+        font-weight: 500;
+        color: #0a2a3f;
+    }
+
+    .user-email {
+        display: block;
+        color: #94a3b8;
+        font-size: 0.75rem;
+    }
+
+    .status-resolved {
+        color: #065f46;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        color: #92400e;
+        font-weight: 600;
+    }
+
+    .btn-resolve {
+        padding: 6px 14px;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .btn-resolve:hover {
+            background: #059669;
+            transform: scale(1.02);
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h4 {
+            font-size: 1.3rem;
+            color: #0a2a3f;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: #94a3b8;
+        }
+
+</style>
+
+
+<script>
+    function resolveReport(id) {
+        if (!confirm('Are you sure you want to resolve this report?')) return;
+
+        fetch('/Admin/ResolveReport', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'id=' + id
+        })
+            .then(response => response.json())
+            .then(data => {
+                showToast(data.success ? 'success' : 'error', data.message);
+                if (data.success) {
+                    setTimeout(() => location.reload(), 1500);
+                }
+            })
+            .catch(error => {
+                showToast('error', 'An error occurred: ' + error);
+            });
+    }
+
+    function showToast(type, message) {
+        const container = document.getElementById('toastContainer');
+        container.style.display = 'block';
+        container.className = 'toast-message ' + type;
+        container.innerHTML = (type === 'success' ? '✅ ' : '❌ ') + message;
+
+        setTimeout(() => {
+            container.style.display = 'none';
+        }, 4000);
+    }
+</script>
