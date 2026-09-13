@@ -1,1 +1,617 @@
-﻿
+﻿@{
+    ViewBag.Title = "My Reports - SE1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model List<SE1.Controllers.UserDashboardController.MyReportViewModel>
+
+<div class="my-reports-page">
+    <div class="container">
+        <div class="reports-card">
+
+           
+            <div class="page-header">
+                <div>
+                    <h2><i class="fas fa-flag"></i> My Reports</h2>
+                    <p>Track your reported issues and their status.</p>
+                </div>
+                <div class="header-actions">
+                    <a href="/UserDashboard/Dashboard" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <a href="/UserDashboard/ReportWashroom" class="btn-report">
+                        <i class="fas fa-plus-circle"></i> New Report
+                    </a>
+                </div>
+            </div>
+
+           
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> @TempData["Success"]
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(ViewBag.Error))
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> @ViewBag.Error
+                </div>
+            }
+
+            
+            @if (Model != null && Model.Any())
+            {
+                <div class="reports-list">
+                    @foreach (var item in Model)
+                    {
+                        <div class="report-card">
+                            <div class="report-image">
+                                @if (!string.IsNullOrEmpty(item.WashroomImage))
+                                {
+                                    <img src="@item.WashroomImage" alt="@item.WashroomName" class="report-img">
+                                }
+                                else
+                                {
+                                    <div class="no-image">
+                                        <i class="fas fa-toilet"></i>
+                                    </div>
+                                }
+                            </div>
+                            <div class="report-info">
+                                <div class="report-header">
+                                    <h3>@item.WashroomName</h3>
+                                    @if (item.Status == "Resolved")
+                                    {
+                                        <span class="status resolved">
+                                            <i class="fas fa-check-circle"></i> Resolved
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status pending">
+                                            <i class="fas fa-clock"></i> Pending
+                                        </span>
+                                    }
+                                </div>
+                                <p class="washroom-address"><i class="fas fa-map-marker-alt"></i> @item.WashroomAddress</p>
+                                <div class="issue-type">
+                                    <span class="issue-badge"><i class="fas fa-exclamation-triangle"></i> @item.IssueType</span>
+                                    <span class="report-date"><i class="fas fa-calendar"></i> @item.CreatedAt.ToString("dd MMM yyyy")</span>
+                                </div>
+                                <p class="report-description">@item.Description</p>
+
+                                @if (!string.IsNullOrEmpty(item.PhotoUrl))
+                                {
+                                    <div class="report-photo">
+                                        <img src="@item.PhotoUrl" alt="Report Photo" class="report-photo-img" onclick="openImage(this.src)">
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrEmpty(item.AdminComment))
+                                {
+                                    <div class="admin-comment">
+                                        <strong><i class="fas fa-user-shield"></i> Admin Response:</strong>
+                                        <p>@item.AdminComment</p>
+                                    </div>
+                                }
+
+                                @if (item.ResolvedAt.HasValue)
+                                {
+                                    <span class="resolved-date"><i class="fas fa-check-circle"></i> Resolved on: @item.ResolvedAt.Value.ToString("dd MMM yyyy")</span>
+                                }
+                            </div>
+                            <div class="report-actions">
+                                <button class="btn-details" onclick="location.href='/UserDashboard/Details/@item.WashroomId'">
+                                    <i class="fas fa-eye"></i> View Washroom
+                                </button>
+                                @if (item.Status != "Resolved")
+                                {
+                                    <button class="btn-resolve" onclick="alert('This report is pending review by admin.')">
+                                        <i class="fas fa-clock"></i> Pending
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-flag"></i>
+                    <h4>No Reports Submitted</h4>
+                    <p>You haven't submitted any reports yet. Found an issue? Report it now!</p>
+                    <a href="/UserDashboard/ReportWashroom" class="btn-report-now">
+                        <i class="fas fa-plus-circle"></i> Submit a Report
+                    </a>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .my-reports-page {
+        padding: 40px 0 60px;
+        background: #f4f7fc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .reports-card {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 30px 35px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+        .page-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0;
+        }
+
+            .page-header h2 i {
+                color: #e76f51;
+                margin-right: 8px;
+            }
+
+        .page-header p {
+            color: #64748b;
+            margin: 0;
+        }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-back:hover {
+            background: #e2e8f0;
+            color: #0f3b5e;
+        }
+
+    .btn-report {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 18px;
+        background: #e76f51;
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+        .btn-report:hover {
+            background: #d45a3a;
+            transform: scale(1.02);
+            color: white;
+        }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+    }
+
+    .alert-success {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+
+    .alert-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    .reports-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .report-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 16px 20px;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        gap: 16px;
+        transition: all 0.3s;
+        align-items: flex-start;
+    }
+
+        .report-card:hover {
+            border-color: #2a9d8f;
+            box-shadow: 0 4px 12px rgba(42, 157, 143, 0.08);
+        }
+
+    .report-image {
+        width: 80px;
+        height: 80px;
+        flex-shrink: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .report-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .no-image {
+        font-size: 2rem;
+        color: #94a3b8;
+    }
+
+    .report-info {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .report-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+
+        .report-header h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0;
+        }
+
+    .status {
+        padding: 3px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status.resolved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+    .washroom-address {
+        color: #64748b;
+        font-size: 0.85rem;
+        margin: 0 0 4px;
+    }
+
+        .washroom-address i {
+            color: #2a9d8f;
+            margin-right: 4px;
+        }
+
+    .issue-type {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 6px;
+    }
+
+    .issue-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 12px;
+        background: #fef3c7;
+        color: #92400e;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .report-date {
+        color: #94a3b8;
+        font-size: 0.8rem;
+    }
+
+        .report-date i {
+            margin-right: 4px;
+        }
+
+    .report-description {
+        color: #475569;
+        margin: 4px 0;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .report-photo {
+        margin: 6px 0;
+    }
+
+    .report-photo-img {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+    }
+
+        .report-photo-img:hover {
+            transform: scale(1.02);
+            border-color: #2a9d8f;
+        }
+
+    .admin-comment {
+        background: #dbeafe;
+        padding: 10px 14px;
+        border-radius: 8px;
+        margin: 6px 0;
+    }
+
+        .admin-comment strong {
+            color: #1e40af;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .admin-comment p {
+            color: #1e293b;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+    .resolved-date {
+        color: #065f46;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .report-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .btn-details {
+        padding: 6px 14px;
+        background: #e2e8f0;
+        color: #475569;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .btn-details:hover {
+            background: #cbd5e1;
+            transform: scale(1.02);
+        }
+
+    .btn-resolve {
+        padding: 6px 14px;
+        background: #fef3c7;
+        color: #92400e;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .btn-resolve:hover {
+            background: #fde68a;
+            transform: scale(1.02);
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h4 {
+            font-size: 1.3rem;
+            color: #0a2a3f;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+    .btn-report-now {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        background: #e76f51;
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+        .btn-report-now:hover {
+            background: #d45a3a;
+            transform: translateY(-3px);
+            color: white;
+            box-shadow: 0 6px 20px rgba(231, 111, 81, 0.25);
+        }
+
+    
+    .image-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+        .image-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .image-modal .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            color: white;
+            font-size: 3rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            .image-modal .close-modal:hover {
+                color: #e76f51;
+            }
+
+    @@media (max-width: 768px) {
+        .reports-card {
+            padding: 20px 16px;
+            margin: 0 16px;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .report-card {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .report-image {
+            width: 100%;
+            height: 120px;
+        }
+
+        .report-actions {
+            flex-direction: row;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+            .header-actions a {
+                flex: 1;
+                justify-content: center;
+            }
+    }
+
+    @@media (max-width: 480px) {
+        .report-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .issue-type {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+    }
+</style>
+
+
+<div id="imageModal" class="image-modal" onclick="closeModal()">
+    <span class="close-modal">&times;</span>
+    <img id="modalImage" src="">
+</div>
+
+<script>
+    function openImage(src) {
+        var modal = document.getElementById('imageModal');
+        var modalImg = document.getElementById('modalImage');
+        modal.style.display = 'flex';
+        modalImg.src = src;
+    }
+
+    function closeModal() {
+        document.getElementById('imageModal').style.display = 'none';
+    }
+
+    console.log('🚻 SE1 - My Reports Loaded');
+</script>
