@@ -1,1 +1,942 @@
-﻿
+﻿@{
+    ViewBag.Title = "Washroom Details - SE1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model SE1.Controllers.UserDashboardController.WashroomDetailViewModel
+
+<div class="details-page">
+    <div class="container">
+        <div class="details-card">
+
+            <div class="back-header">
+                <a href="javascript:history.back()" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <button class="btn-favorite @(Model.IsFavorite ? "active" : "")" onclick="toggleFavorite(@Model.WashroomId, this)">
+                    <i class="fas fa-heart"></i> <span>@(Model.IsFavorite ? "Favorited" : "Add to Favorites")</span>
+                </button>
+            </div>
+
+           
+            <div class="image-gallery">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="main-image" id="mainImage">
+                }
+                else
+                {
+                    <div class="no-image-large">
+                        <i class="fas fa-toilet"></i>
+                        <span>No Image Available</span>
+                    </div>
+                }
+
+                @if (Model.AllImages != null && Model.AllImages.Count > 1)
+                {
+                    <div class="thumbnail-gallery">
+                        @foreach (var img in Model.AllImages)
+                        {
+                            <img src="@img" alt="Thumbnail" class="thumbnail" onclick="changeImage('@img')">
+                        }
+                    </div>
+                }
+            </div>
+
+           
+            <div class="details-header">
+                <div>
+                    <h1>@Model.Name</h1>
+                    <p class="address"><i class="fas fa-map-marker-alt"></i> @Model.Address, @Model.City</p>
+                </div>
+                <div class="rating-badge">
+                    <div class="big-rating">
+                        <i class="fas fa-star"></i>
+                        <span>@Model.AvgRating.ToString("F1")</span>
+                    </div>
+                    <span class="total-ratings">(@Model.TotalRatings reviews)</span>
+                </div>
+            </div>
+
+            
+            <div class="status-tags">
+                <span class="tag @(Model.IsOpen ? "open" : "closed")">
+                    <i class="fas @(Model.IsOpen ? "fa-check-circle" : "fa-times-circle")"></i>
+                    @(Model.IsOpen ? "Open Now" : "Closed")
+                </span>
+                <span class="tag verified">
+                    <i class="fas fa-check-circle"></i> @(Model.VerifiedStatus ? "Verified" : "Pending")
+                </span>
+                <span class="tag security @Model.SecurityStatus.ToLower().Replace(" ", "-")">
+                    <i class="fas fa-shield-alt"></i> @Model.SecurityStatus
+                </span>
+                <span class="tag crowd">
+                    <i class="fas fa-users"></i> @Model.CrowdLevel
+                </span>
+                <span class="tag cost @(Model.UsageCost == 0 ? "free" : "paid")">
+                    <i class="fas fa-money-bill"></i> @(Model.UsageCost == 0 ? "Free" : "BDT " + Model.UsageCost)
+                </span>
+            </div>
+
+           
+            <div class="info-grid">
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <h4>Opening Hours</h4>
+                        <p>@Model.OpeningHours</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-star"></i>
+                    <div>
+                        <h4>Hygiene Score</h4>
+                        <p>@Model.HygieneScore / 5</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <div>
+                        <h4>Contact</h4>
+                        <p>@Model.ContactNumber</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-user"></i>
+                    <div>
+                        <h4>Owner</h4>
+                        <p>@Model.OwnerName</p>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="facilities-section">
+                <h3><i class="fas fa-concierge-bell"></i> Facilities</h3>
+                <div class="facilities-grid">
+                    <div class="facility-item @(Model.BathAvailability ? "available" : "unavailable")">
+                        <i class="fas fa-shower"></i>
+                        <span>Bath/Shower</span>
+                        <span class="status-icon">@(Model.BathAvailability ? "✅" : "❌")</span>
+                    </div>
+                    <div class="facility-item @(Model.BabyFacility ? "available" : "unavailable")">
+                        <i class="fas fa-baby"></i>
+                        <span>Baby Facilities</span>
+                        <span class="status-icon">@(Model.BabyFacility ? "✅" : "❌")</span>
+                    </div>
+                    <div class="facility-item @(Model.WheelchairAccess ? "available" : "unavailable")">
+                        <i class="fas fa-wheelchair"></i>
+                        <span>Wheelchair Access</span>
+                        <span class="status-icon">@(Model.WheelchairAccess ? "✅" : "❌")</span>
+                    </div>
+                    <div class="facility-item @(Model.Handwash ? "available" : "unavailable")">
+                        <i class="fas fa-hand-wash"></i>
+                        <span>Handwashing</span>
+                        <span class="status-icon">@(Model.Handwash ? "✅" : "❌")</span>
+                    </div>
+                    <div class="facility-item @(Model.HandDryer ? "available" : "unavailable")">
+                        <i class="fas fa-wind"></i>
+                        <span>Hand Dryer</span>
+                        <span class="status-icon">@(Model.HandDryer ? "✅" : "❌")</span>
+                    </div>
+                </div>
+            </div>
+
+            
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="description-section">
+                    <h3><i class="fas fa-align-left"></i> Description</h3>
+                    <p>@Model.Description</p>
+                </div>
+            }
+
+            <div class="map-section">
+                <h3><i class="fas fa-map"></i> Location</h3>
+                <div class="map-container">
+                    <iframe style="width:100%; height:300px; border-radius:12px; border:1px solid #e2e8f0;"
+                            frameborder="0"
+                            scrolling="no"
+                            marginheight="0"
+                            marginwidth="0"
+                            src="https://www.openstreetmap.org/export/embed.html?bbox=@(Model.Longitude - 0.01),@(Model.Latitude - 0.01),@(Model.Longitude + 0.01),@(Model.Latitude + 0.01)&amp;layer=mapnik&amp;marker=@Model.Latitude,@Model.Longitude">
+                    </iframe>
+                </div>
+                <button class="btn-navigate" onclick="navigateTo(@Model.Latitude.ToString().Replace(",", "."), @Model.Longitude.ToString().Replace(",", "."))">
+                    <i class="fas fa-directions"></i> Get Directions
+                </button>
+            </div>
+
+            <div class="rate-section">
+                <h3><i class="fas fa-star"></i> Rate & Review</h3>
+                <div class="rating-input">
+                    <div class="stars" id="starRating">
+                        <i class="fas fa-star" data-rating="1" onclick="setRating(1)"></i>
+                        <i class="fas fa-star" data-rating="2" onclick="setRating(2)"></i>
+                        <i class="fas fa-star" data-rating="3" onclick="setRating(3)"></i>
+                        <i class="fas fa-star" data-rating="4" onclick="setRating(4)"></i>
+                        <i class="fas fa-star" data-rating="5" onclick="setRating(5)"></i>
+                    </div>
+                    <span id="ratingLabel">Select rating</span>
+                </div>
+                <div class="review-input">
+                    <textarea id="reviewComment" class="form-control" placeholder="Share your experience..." rows="3">@Model.UserComment</textarea>
+                    <button class="btn-submit-review" onclick="submitReview(@Model.WashroomId)">
+                        <i class="fas fa-paper-plane"></i> Submit Review
+                    </button>
+                </div>
+                <div id="reviewStatus" style="display:none;" class="alert alert-success"></div>
+            </div>
+
+            
+            @if (Model.Reviews != null && Model.Reviews.Any())
+            {
+                <div class="reviews-section">
+                    <h3><i class="fas fa-comments"></i> User Reviews</h3>
+                    @foreach (var review in Model.Reviews)
+                    {
+                        <div class="review-card">
+                            <div class="review-header">
+                                <strong>@review.UserName</strong>
+                                <div class="review-stars">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="fas fa-star @(i <= review.Rating ? "filled" : "")"></i>
+                                    }
+                                </div>
+                            </div>
+                            <p class="review-comment">"@review.Comment"</p>
+                            <span class="review-date"><i class="fas fa-calendar"></i> @review.CreatedAt.ToString("dd MMM yyyy")</span>
+                        </div>
+                    }
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .details-page {
+        padding: 40px 0 60px;
+        background: #f4f7fc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .details-card {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 30px 35px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .back-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-back:hover {
+            background: #e2e8f0;
+            color: #0f3b5e;
+        }
+
+    .btn-favorite {
+        padding: 8px 16px;
+        background: #fee2e2;
+        color: #e76f51;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .btn-favorite.active {
+            background: #e76f51;
+            color: white;
+        }
+
+        .btn-favorite:hover {
+            transform: scale(1.02);
+        }
+
+    .image-gallery {
+        margin-bottom: 20px;
+    }
+
+    .main-image {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .no-image-large {
+        width: 100%;
+        height: 300px;
+        background: #f1f5f9;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 1.2rem;
+    }
+
+        .no-image-large i {
+            font-size: 4rem;
+            margin-bottom: 12px;
+        }
+
+    .thumbnail-gallery {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+    }
+
+    .thumbnail {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.2s;
+    }
+
+        .thumbnail:hover {
+            border-color: #2a9d8f;
+        }
+
+    .details-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+        .details-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #0a2a3f;
+            margin: 0;
+        }
+
+        .details-header .address {
+            color: #64748b;
+            margin: 0;
+        }
+
+            .details-header .address i {
+                color: #2a9d8f;
+                margin-right: 4px;
+            }
+
+    .rating-badge {
+        text-align: center;
+        background: #f8fafc;
+        padding: 12px 20px;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .big-rating {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #f59e0b;
+    }
+
+        .big-rating i {
+            margin-right: 4px;
+        }
+
+    .total-ratings {
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+
+    .status-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .tag {
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .tag.open {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .tag.closed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .tag.verified {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .tag.security.very-safe {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .tag.security.safe {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .tag.security.needs-attention {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tag.crowd {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .tag.cost.free {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .tag.cost.paid {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 12px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .info-item i {
+            font-size: 1.3rem;
+            color: #2a9d8f;
+            width: 30px;
+        }
+
+        .info-item h4 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-item p {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #0a2a3f;
+            margin: 0;
+        }
+
+    .facilities-section {
+        margin-bottom: 20px;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 12px;
+    }
+
+        .facilities-section h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0 0 12px;
+        }
+
+            .facilities-section h3 i {
+                color: #2a9d8f;
+                margin-right: 8px;
+            }
+
+    .facilities-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 8px;
+    }
+
+    .facility-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #f1f5f9;
+        font-size: 0.85rem;
+    }
+
+        .facility-item i {
+            color: #2a9d8f;
+            font-size: 1rem;
+        }
+
+        .facility-item .status-icon {
+            margin-left: auto;
+        }
+
+        .facility-item.unavailable {
+            opacity: 0.5;
+        }
+
+    .description-section {
+        margin-bottom: 20px;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 12px;
+    }
+
+        .description-section h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0 0 8px;
+        }
+
+            .description-section h3 i {
+                color: #2a9d8f;
+                margin-right: 8px;
+            }
+
+        .description-section p {
+            color: #475569;
+            margin: 0;
+            line-height: 1.7;
+        }
+
+    .map-section {
+        margin-bottom: 20px;
+    }
+
+        .map-section h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0 0 8px;
+        }
+
+            .map-section h3 i {
+                color: #2a9d8f;
+                margin-right: 8px;
+            }
+
+    .map-container {
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+        .map-container iframe {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+        }
+
+    .btn-navigate {
+        margin-top: 8px;
+        padding: 10px 24px;
+        background: #0f3b5e;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .btn-navigate:hover {
+            background: #1a4f77;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 59, 94, 0.20);
+        }
+
+    .rate-section {
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+        .rate-section h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0 0 12px;
+        }
+
+            .rate-section h3 i {
+                color: #2a9d8f;
+                margin-right: 8px;
+            }
+
+    .rating-input {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 12px;
+    }
+
+    .stars {
+        display: flex;
+        gap: 4px;
+    }
+
+        .stars i {
+            font-size: 1.8rem;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .stars i:hover,
+            .stars i.active {
+                color: #f59e0b;
+                transform: scale(1.1);
+            }
+
+    #ratingLabel {
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .review-input {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+        .review-input .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background: #ffffff;
+        }
+
+            .review-input .form-control:focus {
+                outline: none;
+                border-color: #2a9d8f;
+                box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.10);
+            }
+
+    .btn-submit-review {
+        padding: 10px 24px;
+        background: #2a9d8f;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        align-self: flex-start;
+    }
+
+        .btn-submit-review:hover {
+            background: #1a7a6f;
+            transform: translateY(-2px);
+        }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 12px;
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+    }
+
+    .alert-success {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+
+    .reviews-section {
+        margin-top: 16px;
+    }
+
+        .reviews-section h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0 0 12px;
+        }
+
+            .reviews-section h3 i {
+                color: #2a9d8f;
+                margin-right: 8px;
+            }
+
+    .review-card {
+        background: #f8fafc;
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+
+        .review-header strong {
+            color: #0a2a3f;
+        }
+
+    .review-stars i {
+        color: #cbd5e1;
+    }
+
+        .review-stars i.filled {
+            color: #f59e0b;
+        }
+
+    .review-comment {
+        color: #475569;
+        margin: 4px 0;
+        font-style: italic;
+    }
+
+    .review-date {
+        color: #94a3b8;
+        font-size: 0.8rem;
+    }
+
+        .review-date i {
+            margin-right: 4px;
+        }
+
+    @@media (max-width: 768px) {
+        .details-card {
+            padding: 20px 16px;
+            margin: 0 16px;
+        }
+
+        .details-header {
+            flex-direction: column;
+        }
+
+        .main-image {
+            height: 200px;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .facilities-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .rating-input {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .btn-submit-review {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .map-container iframe {
+            height: 200px;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .map-container iframe {
+            height: 150px;
+        }
+    }
+</style>
+
+
+<script>
+   
+    var selectedRating = @(Model.UserRating > 0 ? Model.UserRating : 0);
+
+    function setRating(rating) {
+        selectedRating = rating;
+        var stars = document.querySelectorAll('#starRating i');
+        stars.forEach(function (star, index) {
+            if (index < rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+        document.getElementById('ratingLabel').textContent = 'Rating: ' + rating + ' star' + (rating > 1 ? 's' : '');
+    }
+
+    @if (Model.UserRating > 0)
+        {
+            <text>setRating(@Model.UserRating);</text>
+    }
+
+        
+        function submitReview(washroomId) {
+            var rating = selectedRating;
+            var comment = document.getElementById('reviewComment').value.trim();
+
+            if (rating === 0) {
+                showToast('Please select a rating first.');
+                return;
+            }
+
+            var statusDiv = document.getElementById('reviewStatus');
+            statusDiv.style.display = 'none';
+
+            fetch('/UserDashboard/RateWashroom', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'washroomId=' + washroomId + '&rating=' + rating + '&comment=' + encodeURIComponent(comment)
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    statusDiv.style.display = 'block';
+                    statusDiv.className = 'alert alert-success';
+                    statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
+
+                    if (data.success) {
+                        showToast(data.message);
+                    }
+                })
+                .catch(function (error) {
+                    statusDiv.style.display = 'block';
+                    statusDiv.className = 'alert alert-danger';
+                    statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> An error occurred.';
+                });
+        }
+
+   
+    function toggleFavorite(washroomId, element) {
+        fetch('/UserDashboard/ToggleFavorite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'washroomId=' + washroomId
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                if (data.success) {
+                    element.classList.toggle('active');
+                    var span = element.querySelector('span');
+                    if (span) {
+                        span.textContent = element.classList.contains('active') ? 'Favorited' : 'Add to Favorites';
+                    }
+                    showToast(data.message);
+                } else {
+                    showToast(data.message);
+                }
+            })
+            .catch(function (error) {
+                showToast('An error occurred.');
+            });
+    }
+
+    
+    function navigateTo(lat, lng) {
+        var url = 'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng;
+        window.open(url, '_blank');
+    }
+
+   
+    function changeImage(url) {
+        document.getElementById('mainImage').src = url;
+    }
+
+    
+    function showToast(message) {
+        var toast = document.getElementById('customToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'customToast';
+            toast.style.cssText = 'position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #0f3b5e; color: white; padding: 14px 28px; border-radius: 12px; font-weight: 500; box-shadow: 0 8px 30px rgba(0,0,0,0.20); display: none; z-index: 999; animation: slideUp 0.3s ease; max-width: 90%; text-align: center;';
+            document.body.appendChild(toast);
+        }
+
+        toast.innerHTML = message;
+        toast.style.display = 'block';
+
+        setTimeout(function () {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    console.log('🚻 SE1 - Washroom Details Loaded');
+</script>
