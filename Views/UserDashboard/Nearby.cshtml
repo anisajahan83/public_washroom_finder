@@ -1,1 +1,721 @@
-﻿
+﻿@{
+    ViewBag.Title = "Nearby Washrooms - SE1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model List<SE1.Controllers.UserDashboardController.WashroomViewModel>
+
+<div class="nearby-page">
+    <div class="container">
+        <div class="nearby-card">
+
+            
+            <div class="nearby-header">
+                <div>
+                    <h2><i class="fas fa-search-location"></i> Nearby Washrooms</h2>
+                    <p>
+                        <i class="fas fa-map-marker-alt"></i>
+                        Showing washrooms in <strong>@ViewBag.UserCity</strong>
+                    </p>
+                </div>
+                <a href="/UserDashboard/Dashboard" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            
+            <div class="filter-section">
+                <div class="filter-row">
+                    <div class="filter-group search-group">
+                        <label><i class="fas fa-search"></i> Search</label>
+                        <input type="text" id="searchInput" class="filter-input"
+                               placeholder="Search by name or location"
+                               onkeyup="filterWashrooms()">
+                    </div>
+                    <div class="filter-group">
+                        <label><i class="fas fa-money-bill"></i> Cost</label>
+                        <select id="costFilter" class="filter-input" onchange="filterWashrooms()">
+                            <option value="all">All</option>
+                            <option value="free">Free</option>
+                            <option value="paid">Paid</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filter-row filter-checkboxes">
+                    <label class="check-filter">
+                        <input type="checkbox" id="bathFilter" onchange="filterWashrooms()">
+                        <span><i class="fas fa-shower"></i> Has Bath/Shower</span>
+                    </label>
+                    <label class="check-filter">
+                        <input type="checkbox" id="wheelchairFilter" onchange="filterWashrooms()">
+                        <span><i class="fas fa-wheelchair"></i> Wheelchair Access</span>
+                    </label>
+                    <label class="check-filter">
+                        <input type="checkbox" id="babyFilter" onchange="filterWashrooms()">
+                        <span><i class="fas fa-baby"></i> Baby Facilities</span>
+                    </label>
+                    <button class="btn-reset" onclick="resetFilters()">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            
+            <p class="results-count" id="resultsCount">
+                <strong>@(Model?.Count ?? 0)</strong> washrooms found
+            </p>
+
+            
+            @if (Model != null && Model.Any())
+            {
+                <div class="washroom-grid" id="washroomGrid">
+                    @foreach (var item in Model)
+                    {
+                        <div class="washroom-card"
+                             data-name="@item.Name.ToLower()"
+                             data-address="@item.Address.ToLower()"
+                             data-cost="@(item.UsageCost == 0 ? "free" : "paid")"
+                             data-bath="@item.BathAvailability.ToString().ToLower()"
+                             data-wheelchair="@item.WheelchairAccess.ToString().ToLower()"
+                             data-baby="@item.BabyFacility.ToString().ToLower()">
+
+                            <div class="washroom-image">
+                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl" alt="@item.Name">
+                                }
+                                else
+                                {
+                                    <div class="no-image">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="washroom-info">
+                                <div class="washroom-title">
+                                    <h3>@item.Name</h3>
+                                    @if (item.VerifiedStatus)
+                                    {
+                                        <span class="verified-badge">✅ Verified</span>
+                                    }
+                                </div>
+
+                                <p><i class="fas fa-map-marker-alt"></i> @item.Address</p>
+                                <p><i class="fas fa-clock"></i> @item.OpeningHours</p>
+                                <p><i class="fas fa-money-bill"></i> @(item.UsageCost == 0 ? "Free" : "BDT " + item.UsageCost)</p>
+
+                                <div class="washroom-meta">
+                                    <span class="badge-hygiene"><i class="fas fa-star"></i> @item.HygieneScore</span>
+                                    <span class="badge-security"><i class="fas fa-shield-alt"></i> @item.SecurityStatus</span>
+                                    <span class="badge-crowd"><i class="fas fa-users"></i> @item.CrowdLevel</span>
+                                </div>
+
+                                <div class="facilities">
+                                    @if (item.BathAvailability)
+                                    {
+                                        <span class="facility"><i class="fas fa-shower"></i> Bath</span>
+                                    }
+                                    @if (item.BabyFacility)
+                                    {
+                                        <span class="facility"><i class="fas fa-baby"></i> Baby</span>
+                                    }
+                                    @if (item.WheelchairAccess)
+                                    {
+                                        <span class="facility"><i class="fas fa-wheelchair"></i> Access</span>
+                                    }
+                                    @if (item.Handwash)
+                                    {
+                                        <span class="facility"><i class="fas fa-hand-wash"></i> Handwash</span>
+                                    }
+                                    @if (item.HandDryer)
+                                    {
+                                        <span class="facility"><i class="fas fa-wind"></i> Dryer</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="washroom-actions">
+                                @if (item.Latitude != 0 && item.Longitude != 0)
+                                {
+                                    <a href="https://www.google.com/maps/dir/?api=1&destination=@item.Latitude,@item.Longitude"
+                                       target="_blank" class="btn-navigate">
+                                        <i class="fas fa-directions"></i> Navigate
+                                    </a>
+                                }
+                                <a href="/UserDashboard/Details/@item.WashroomId" class="btn-details">
+                                    <i class="fas fa-info-circle"></i> Details
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                
+                <div class="no-results" id="noResults" style="display:none;">
+                    <i class="fas fa-search"></i>
+                    <h4>No Washrooms Found</h4>
+                    <p>Try adjusting your filters or search term.</p>
+                    <button class="btn-reset-large" onclick="resetFilters()">
+                        <i class="fas fa-redo"></i> Reset Filters
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-search-location"></i>
+                    <h4>No Washrooms in @ViewBag.UserCity</h4>
+                    <p>There are no verified washrooms in your area yet. Please check back later.</p>
+                    <a href="/UserDashboard/Dashboard" class="btn-back-dash">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .nearby-page {
+        padding: 40px 0 60px;
+        background: #f4f7fc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .nearby-card {
+        max-width: 1100px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 30px 35px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .nearby-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+        .nearby-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0 0 4px;
+        }
+
+            .nearby-header h2 i {
+                color: #2a9d8f;
+                margin-right: 8px;
+            }
+
+        .nearby-header p {
+            color: #64748b;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+            .nearby-header p i {
+                color: #2a9d8f;
+                margin-right: 6px;
+            }
+
+            .nearby-header p strong {
+                color: #0f3b5e;
+            }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-back:hover {
+            background: #e2e8f0;
+            color: #0f3b5e;
+        }
+
+   
+    .filter-section {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+
+        .filter-row:last-child {
+            margin-bottom: 0;
+        }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .search-group {
+        flex: 2;
+    }
+
+    .filter-group label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 4px;
+    }
+
+        .filter-group label i {
+            color: #2a9d8f;
+            margin-right: 4px;
+        }
+
+    .filter-input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        background: #ffffff;
+        color: #1e293b;
+        transition: all 0.2s;
+    }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: #2a9d8f;
+            box-shadow: 0 0 0 4px rgba(42, 157, 143, 0.10);
+        }
+
+    .filter-checkboxes {
+        align-items: center;
+        gap: 20px;
+    }
+
+    .check-filter {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: #475569;
+        font-weight: 500;
+    }
+
+        .check-filter input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #2a9d8f;
+            cursor: pointer;
+        }
+
+        .check-filter span i {
+            color: #2a9d8f;
+            margin-right: 4px;
+        }
+
+    .btn-reset {
+        padding: 8px 20px;
+        background: #ffffff;
+        color: #475569;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+    }
+
+        .btn-reset:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+    .results-count {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+    }
+
+        .results-count strong {
+            color: #0f3b5e;
+            font-size: 1.1rem;
+        }
+
+   
+    .washroom-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+    }
+
+    .washroom-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+        .washroom-card:hover {
+            border-color: #2a9d8f;
+            box-shadow: 0 8px 24px rgba(42, 157, 143, 0.10);
+            transform: translateY(-4px);
+        }
+
+    .washroom-image {
+        width: 100%;
+        height: 150px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #e2e8f0;
+    }
+
+        .washroom-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .no-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #94a3b8;
+        font-size: 2rem;
+    }
+
+    .washroom-info {
+        flex: 1;
+    }
+
+    .washroom-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+        .washroom-title h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0;
+        }
+
+    .verified-badge {
+        font-size: 0.7rem;
+        padding: 2px 10px;
+        background: #d1fae5;
+        color: #065f46;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+    .washroom-info p {
+        margin: 4px 0;
+        color: #475569;
+        font-size: 0.85rem;
+    }
+
+        .washroom-info p i {
+            color: #2a9d8f;
+            width: 18px;
+        }
+
+    .washroom-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 8px 0;
+    }
+
+        .washroom-meta span {
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+    .badge-hygiene {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-security {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-crowd {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .facilities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 8px;
+    }
+
+    .facility {
+        padding: 2px 10px;
+        background: #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .facility i {
+            font-size: 0.65rem;
+            color: #2a9d8f;
+        }
+
+    .washroom-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: auto;
+    }
+
+    .btn-navigate, .btn-details {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-navigate {
+        background: #0f3b5e;
+        color: white;
+    }
+
+        .btn-navigate:hover {
+            background: #1a4f77;
+            transform: scale(1.02);
+        }
+
+    .btn-details {
+        background: #e2e8f0;
+        color: #475569;
+    }
+
+        .btn-details:hover {
+            background: #cbd5e1;
+            transform: scale(1.02);
+        }
+
+    /* No Results */
+    .no-results {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+        .no-results i {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .no-results h4 {
+            font-size: 1.3rem;
+            color: #0a2a3f;
+            margin-bottom: 8px;
+        }
+
+        .no-results p {
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+    .btn-reset-large {
+        padding: 12px 28px;
+        background: #0f3b5e;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .btn-reset-large:hover {
+            background: #1a4f77;
+            transform: translateY(-2px);
+        }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h4 {
+            font-size: 1.3rem;
+            color: #0a2a3f;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+    .btn-back-dash {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        background: #0f3b5e;
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+        .btn-back-dash:hover {
+            background: #1a4f77;
+            transform: translateY(-3px);
+            color: white;
+        }
+
+    
+</style>
+
+<script>
+  
+    function filterWashrooms() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        const costFilter = document.getElementById('costFilter').value;
+        const bathFilter = document.getElementById('bathFilter').checked;
+        const wheelchairFilter = document.getElementById('wheelchairFilter').checked;
+        const babyFilter = document.getElementById('babyFilter').checked;
+
+        const cards = document.querySelectorAll('.washroom-card');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const name = card.dataset.name || '';
+            const address = card.dataset.address || '';
+            const cost = card.dataset.cost || '';
+            const bath = card.dataset.bath === 'true';
+            const wheelchair = card.dataset.wheelchair === 'true';
+            const baby = card.dataset.baby === 'true';
+
+            let show = true;
+
+            
+            if (searchTerm) {
+                if (!name.includes(searchTerm) && !address.includes(searchTerm)) {
+                    show = false;
+                }
+            }
+
+           
+            if (costFilter !== 'all') {
+                if (cost !== costFilter) show = false;
+            }
+
+           
+            if (bathFilter && !bath) show = false;
+
+            
+            if (wheelchairFilter && !wheelchair) show = false;
+
+           
+            if (babyFilter && !baby) show = false;
+
+            if (show) {
+                card.style.display = 'flex';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+       
+        document.getElementById('resultsCount').innerHTML = '<strong>' + visibleCount + '</strong> washrooms found';
+
+       
+        const noResults = document.getElementById('noResults');
+        const grid = document.getElementById('washroomGrid');
+
+        if (visibleCount === 0) {
+            if (grid) grid.style.display = 'none';
+            if (noResults) noResults.style.display = 'block';
+        } else {
+            if (grid) grid.style.display = 'grid';
+            if (noResults) noResults.style.display = 'none';
+        }
+    }
+
+    
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('costFilter').value = 'all';
+        document.getElementById('bathFilter').checked = false;
+        document.getElementById('wheelchairFilter').checked = false;
+        document.getElementById('babyFilter').checked = false;
+
+        filterWashrooms();
+    }
+
+    console.log('🚻 SE1 - Nearby Washrooms Loaded');
+    console.log('📍 Showing washrooms in: @ViewBag.UserCity');
+</script>
