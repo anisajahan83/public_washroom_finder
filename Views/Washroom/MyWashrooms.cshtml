@@ -1,1 +1,530 @@
-﻿
+﻿@{
+    ViewBag.Title = "My Washrooms - SE1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model List<SE1.Controllers.WashroomController.Washroom>
+
+@{
+    
+    var statusFilter = Context.Request.Query["status"].ToString();
+    var filteredList = Model;
+
+    if (!string.IsNullOrEmpty(statusFilter))
+    {
+        if (statusFilter == "pending")
+        {
+            filteredList = Model.Where(w => !w.VerifiedStatus).ToList();
+        }
+        else if (statusFilter == "verified")
+        {
+            filteredList = Model.Where(w => w.VerifiedStatus).ToList();
+        }
+    }
+}
+
+<div class="owner-washrooms">
+    <div class="container">
+        <div class="owner-card">
+
+           
+            <div class="owner-header">
+                <div>
+                    <h2><i class="fas fa-list"></i> My Washrooms</h2>
+                    <p>View and manage all your registered washrooms.</p>
+                    @if (!string.IsNullOrEmpty(statusFilter))
+                    {
+                        <p class="filter-badge">
+                            <i class="fas fa-filter"></i>
+                            Showing: <strong>@(statusFilter == "pending" ? "⏳ Pending" : "✅ Verified")</strong>
+                            <a href="/Washroom/MyWashrooms" class="clear-filter">Clear Filter</a>
+                        </p>
+                    }
+                </div>
+                <div class="header-actions">
+                    <a href="/WashroomOwner/Dashboard" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <a href="/Washroom/Register" class="btn-add">
+                        <i class="fas fa-plus-circle"></i> Register New
+                    </a>
+                </div>
+            </div>
+
+            
+            <div id="toastContainer" style="display:none;" class="toast-message"></div>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> @TempData["Success"]
+                </div>
+            }
+
+            @if (filteredList != null && filteredList.Any())
+            {
+                <div class="washroom-grid">
+                    @foreach (var item in filteredList)
+                    {
+                        <div class="washroom-card">
+                            <div class="washroom-image">
+                                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl" alt="@item.Name" class="washroom-img">
+                                }
+                                else
+                                {
+                                    <div class="no-image-placeholder">
+                                        <i class="fas fa-image"></i>
+                                        <span>No Image</span>
+                                    </div>
+                                }
+                            </div>
+                            <div class="washroom-info">
+                                <div class="washroom-title">
+                                    <h3>@item.Name</h3>
+                                    <span class="status @(item.VerifiedStatus ? "verified" : "pending")">
+                                        @(item.VerifiedStatus ? "✅ Verified" : "⏳ Pending")
+                                    </span>
+                                </div>
+                                <p><i class="fas fa-map-marker-alt"></i> @item.Address</p>
+                                <p><i class="fas fa-clock"></i> @item.OpeningHours</p>
+                                <p><i class="fas fa-money-bill"></i> @(item.UsageCost == 0 ? "Free" : "BDT " + item.UsageCost)</p>
+                                <p><i class="fas fa-star"></i> Hygiene Score: @item.HygieneScore / 5</p>
+                                <p><i class="fas fa-shield-alt"></i> Security: @item.SecurityStatus</p>
+                                <p><i class="fas fa-users"></i> Crowd: @item.CrowdLevel</p>
+                                <p><i class="fas fa-shower"></i> Bath: @(item.BathAvailability ? "Available" : "Not Available")</p>
+                                <p><i class="fas fa-baby"></i> Baby Facilities: @(item.BabyFacility ? "✅ Available" : "❌ Not Available")</p>
+                                <p><i class="fas fa-wheelchair"></i> Wheelchair Access: @(item.WheelchairAccess ? "✅ Available" : "❌ Not Available")</p>
+                                <p><i class="fas fa-hand-wash"></i> Handwashing: @(item.Handwash ? "✅ Available" : "❌ Not Available")</p>
+                                <p><i class="fas fa-wind"></i> Hand Dryer: @(item.HandDryer ? "✅ Available" : "❌ Not Available")</p>
+                                @if (!string.IsNullOrEmpty(item.Description))
+                                {
+                                    <p><i class="fas fa-align-left"></i> @item.Description</p>
+                                }
+                                <p class="date"><i class="fas fa-calendar"></i> Registered: @item.CreatedAt.ToString("dd MMM yyyy")</p>
+                            </div>
+                            <div class="washroom-actions">
+                                <a href="/Washroom/Edit/@item.WashroomId" class="btn-edit">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <button class="btn-delete" onclick="deleteWashroom(@item.WashroomId)">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-building"></i>
+                    <h4>No Washrooms Found</h4>
+                    <p>
+                        @if (!string.IsNullOrEmpty(statusFilter))
+                        {
+                            @:No @(statusFilter) washrooms found.
+                        }
+                        else
+                        {
+                            @:You haven't registered any washroom yet.
+                        }
+                    </p>
+                    <a href="/Washroom/Register" class="btn-register">
+                        <i class="fas fa-plus-circle"></i> Register Your First Washroom
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .owner-washrooms {
+        padding: 40px 0 60px;
+        background: #f4f7fc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .owner-card {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 30px 35px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .owner-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+        .owner-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0;
+        }
+
+            .owner-header h2 i {
+                color: #2a9d8f;
+                margin-right: 8px;
+            }
+
+        .owner-header p {
+            color: #64748b;
+            margin: 0;
+        }
+
+    .filter-badge {
+        margin-top: 6px;
+        font-size: 0.9rem;
+        background: #f1f5f9;
+        padding: 4px 14px;
+        border-radius: 20px;
+        display: inline-block;
+        color: #1e293b;
+    }
+
+        .filter-badge i {
+            color: #2a9d8f;
+        }
+
+        .filter-badge strong {
+            color: #0f3b5e;
+        }
+
+    .clear-filter {
+        color: #e76f51;
+        text-decoration: none;
+        font-weight: 600;
+        margin-left: 8px;
+        transition: color 0.2s;
+    }
+
+        .clear-filter:hover {
+            color: #c0392b;
+            text-decoration: underline;
+        }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-back:hover {
+            background: #e2e8f0;
+            color: #0f3b5e;
+        }
+
+    .btn-add {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 18px;
+        background: #2a9d8f;
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+        .btn-add:hover {
+            background: #1a7a6f;
+            transform: scale(1.02);
+            color: white;
+        }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+    }
+
+    .alert-success {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+
+    .toast-message {
+        padding: 12px 18px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .toast-message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .toast-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+    .washroom-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .washroom-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 16px 20px;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        gap: 16px;
+        transition: all 0.3s;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+        .washroom-card:hover {
+            border-color: #2a9d8f;
+            box-shadow: 0 4px 12px rgba(42, 157, 143, 0.08);
+        }
+
+    .washroom-image {
+        width: 80px;
+        height: 80px;
+        flex-shrink: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .washroom-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .no-image-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #94a3b8;
+        font-size: 0.7rem;
+    }
+
+        .no-image-placeholder i {
+            font-size: 1.5rem;
+        }
+
+    .washroom-info {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .washroom-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+
+        .washroom-title h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin: 0;
+        }
+
+    .status {
+        padding: 2px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+        .status.verified {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+    .washroom-info p {
+        margin: 2px 0;
+        color: #475569;
+        font-size: 0.85rem;
+    }
+
+        .washroom-info p i {
+            color: #2a9d8f;
+            width: 18px;
+        }
+
+    .washroom-actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .btn-edit {
+        padding: 6px 14px;
+        background: #dbeafe;
+        color: #1e40af;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .btn-edit:hover {
+            background: #bfdbfe;
+            transform: scale(1.02);
+        }
+
+    .btn-delete {
+        padding: 6px 14px;
+        background: #fee2e2;
+        color: #991b1b;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+        .btn-delete:hover {
+            background: #fecaca;
+            transform: scale(1.02);
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h4 {
+            font-size: 1.3rem;
+            color: #0a2a3f;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+    .btn-register {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        background: #0f3b5e;
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+        .btn-register:hover {
+            background: #1a4f77;
+            transform: translateY(-3px);
+            color: white;
+            box-shadow: 0 6px 20px rgba(15, 59, 94, 0.25);
+        }
+
+   
+</style>
+
+<script>
+    
+    function deleteWashroom(id) {
+        if (!confirm('Are you sure you want to delete this washroom? This action cannot be undone!')) return;
+
+        fetch('/Washroom/Delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'id=' + id
+        })
+            .then(response => response.json())
+            .then(data => {
+                showToast(data.success ? 'success' : 'error', data.message);
+                if (data.success) {
+                    setTimeout(() => location.reload(), 1500);
+                }
+            })
+            .catch(error => {
+                showToast('error', 'An error occurred: ' + error);
+            });
+    }
+
+   
+    function showToast(type, message) {
+        const container = document.getElementById('toastContainer');
+        container.style.display = 'block';
+        container.className = 'toast-message ' + type;
+        container.innerHTML = (type === 'success' ? '✅ ' : '❌ ') + message;
+
+        setTimeout(() => {
+            container.style.display = 'none';
+        }, 4000);
+    }
+
+    console.log('🚻 SE1 - My Washrooms Page Loaded');
+</script>
