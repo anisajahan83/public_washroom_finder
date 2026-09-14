@@ -1,1 +1,1070 @@
-﻿
+﻿@{
+    ViewBag.Title = "Register Washroom - SE1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="register-section">
+    <div class="container">
+        <div class="register-card">
+
+            <div class="back-to-home">
+                <a href="/" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </a>
+                <a href="/Washroom/MyWashrooms" class="btn-view-my">
+                    <i class="fas fa-list"></i> My Washrooms
+                </a>
+            </div>
+
+            <div class="register-header">
+                <i class="fas fa-building register-icon"></i>
+                <h2>Register Your Washroom</h2>
+                <p>Fill in the details to list your washroom on SE1</p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(ViewBag.Error))
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> @ViewBag.Error
+                </div>
+            }
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> @TempData["Success"]
+                </div>
+            }
+
+            <form method="post" action="/Washroom/Register" class="register-form" enctype="multipart/form-data" id="registerForm">
+
+                
+                <div class="form-section">
+                    <h3><i class="fas fa-info-circle"></i> Basic Information</h3>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-toilet"></i> Washroom Name <span class="required">*</span></label>
+                        <input type="text" name="name" class="form-control" placeholder="e.g. City Center Washroom" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Address <span class="required">*</span></label>
+                        <input type="text" name="address" class="form-control" placeholder="Full address with area/city" required>
+                    </div>
+
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-map-pin"></i> Location on Map <span class="required">*</span></label>
+                        <div class="location-picker">
+                            <div class="location-input-group">
+                                <input type="text" id="locationSearch" class="form-control" placeholder="Search for location..." value="Chittagong, Bangladesh">
+                                <button type="button" class="btn-search-location" onclick="searchLocation()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            <button type="button" class="btn-get-location" onclick="getCurrentLocationForMap()">
+                                <i class="fas fa-crosshairs"></i> Use My Location
+                            </button>
+                        </div>
+
+                        
+                        <div id="mapContainer" style="height: 250px; margin-top: 10px; border-radius: 12px; border: 1px solid #e2e8f0; width: 100%;"></div>
+
+                       
+                        <div class="coord-info">
+                            <span id="coordDisplay">📍 Location: <strong>22.3384, 91.8321</strong> (Chittagong)</span>
+                            <input type="hidden" name="latitude" id="latitude" value="22.3384">
+                            <input type="hidden" name="longitude" id="longitude" value="91.8321">
+                            <input type="hidden" name="city" id="cityName" value="Chittagong">
+                        </div>
+                        <small class="form-text">Click on the map to select location, or search for a place</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-clock"></i> Opening Hours <span class="required">*</span></label>
+                        <input type="text" name="openingHours" class="form-control" placeholder="e.g. 8:00 AM - 10:00 PM or 24/7" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill"></i> Usage Cost (BDT)</label>
+                        <input type="number" name="usageCost" class="form-control" placeholder="0 for free" step="0.01" value="0">
+                    </div>
+                </div>
+
+                
+                <div class="form-section">
+                    <h3><i class="fas fa-shield-alt"></i> Hygiene & Security</h3>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-shield-alt"></i> Security Status <span class="required">*</span></label>
+                        <select name="securityStatus" class="form-control" required>
+                            <option value="">Select Security Status</option>
+                            <option value="Very Safe">Very Safe</option>
+                            <option value="Safe">Safe</option>
+                            <option value="Needs Attention">Needs Attention</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-users"></i> Crowd Level <span class="required">*</span></label>
+                        <select name="crowdLevel" class="form-control" required>
+                            <option value="">Select Crowd Level</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                </div>
+
+               
+                <div class="form-section">
+                    <h3><i class="fas fa-concierge-bell"></i> Facilities & Amenities</h3>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="bathAvailability" value="true">
+                            <span><i class="fas fa-shower"></i> Bath / Shower Available</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="babyFacility" value="true">
+                            <span><i class="fas fa-baby"></i> Baby Changing Station / Baby Facilities</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="wheelchairAccess" value="true">
+                            <span><i class="fas fa-wheelchair"></i> Wheelchair Accessible</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="handwash" value="true">
+                            <span><i class="fas fa-hand-wash"></i> Handwashing Facilities</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="handDryer" value="true">
+                            <span><i class="fas fa-wind"></i> Hand Dryer Available</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-align-left"></i> Description</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Additional information about your washroom..."></textarea>
+                    </div>
+                </div>
+
+                
+                <div class="form-section image-upload-section">
+                    <h3><i class="fas fa-image"></i> Washroom Image <span class="required">*</span></h3>
+                    <p class="image-upload-hint">Upload one image of your washroom (JPG, PNG, JPEG) - Max 5MB</p>
+
+                    <div class="image-upload-area" id="dropArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h4>Drag & Drop Image Here</h4>
+                        <p>or click to browse</p>
+                        <input type="file" name="washroomImage" id="fileInput" class="file-input" accept=".jpg,.jpeg,.png" onchange="handleFileSelect(event)">
+                        <button type="button" class="btn-browse" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open"></i> Browse File
+                        </button>
+                    </div>
+
+                    <div class="image-preview-container" id="imagePreviewContainer">
+                        <p style="color:#94a3b8; padding:20px;">No image selected</p>
+                    </div>
+
+                    <div class="upload-info">
+                        <span id="imageStatus">❌ No image selected</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-register" id="submitBtn">
+                    <i class="fas fa-plus-circle"></i> Register Washroom
+                </button>
+            </form>
+
+            <div class="register-footer">
+                <p><i class="fas fa-info-circle"></i> Your washroom will be reviewed by admin before going live.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<style>
+    .register-section {
+        padding: 60px 0;
+        background: #f4f7fc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .register-card {
+        max-width: 750px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 40px 35px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .back-to-home {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        padding: 6px 12px;
+        border-radius: 8px;
+        background: #f1f5f9;
+    }
+
+        .btn-back:hover {
+            color: #0f3b5e;
+            background: #e2e8f0;
+            transform: translateX(-4px);
+        }
+
+    .btn-view-my {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 16px;
+        background: #e2e8f0;
+        color: #1e293b;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+    }
+
+        .btn-view-my:hover {
+            background: #cbd5e1;
+            transform: translateY(-2px);
+        }
+
+    .register-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .register-icon {
+        font-size: 3rem;
+        color: #2a9d8f;
+        background: rgba(42, 157, 143, 0.10);
+        padding: 16px;
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+    }
+
+    .register-header h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #0a2a3f;
+        margin-bottom: 4px;
+    }
+
+    .register-header p {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+    }
+
+    .alert-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    .alert-success {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+
+    .form-section {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+        .form-section:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .form-section h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0a2a3f;
+            margin-bottom: 16px;
+        }
+
+            .form-section h3 i {
+                color: #2a9d8f;
+                margin-right: 8px;
+            }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+            .form-group label i {
+                color: #2a9d8f;
+                margin-right: 6px;
+            }
+
+    .required {
+        color: #e76f51;
+        font-weight: 700;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        background: #f8fafc;
+        color: #1e293b;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #2a9d8f;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(42, 157, 143, 0.10);
+        }
+
+    select.form-control {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+    }
+
+    .checkbox-group {
+        margin: 6px 0;
+    }
+
+    .checkbox-label {
+        display: flex !important;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-weight: 500 !important;
+        color: #1e293b !important;
+        padding: 6px 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+
+        .checkbox-label:hover {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #2a9d8f;
+            cursor: pointer;
+        }
+
+        .checkbox-label span i {
+            color: #2a9d8f;
+            margin-right: 8px;
+        }
+
+    .location-picker {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .location-input-group {
+        display: flex;
+        flex: 1;
+        gap: 4px;
+        min-width: 200px;
+    }
+
+        .location-input-group .form-control {
+            flex: 1;
+        }
+
+    .btn-search-location {
+        padding: 10px 16px;
+        background: #0f3b5e;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .btn-search-location:hover {
+            background: #1a4f77;
+            transform: scale(1.02);
+        }
+
+    .btn-get-location {
+        padding: 10px 16px;
+        background: #2a9d8f;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .btn-get-location:hover {
+            background: #1a7a6f;
+            transform: scale(1.02);
+        }
+
+    .coord-info {
+        margin-top: 8px;
+        padding: 8px 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        font-size: 0.9rem;
+        color: #64748b;
+    }
+
+        .coord-info strong {
+            color: #0a2a3f;
+        }
+
+    #mapContainer {
+        cursor: crosshair;
+    }
+
+   
+    .image-upload-section {
+        background: #f8fafc;
+        padding: 20px;
+        border-radius: 16px;
+        border: 2px dashed #e2e8f0;
+    }
+
+    .image-upload-hint {
+        color: #94a3b8;
+        font-size: 0.85rem;
+        margin-bottom: 16px;
+    }
+
+    .image-upload-area {
+        border: 2px dashed #cbd5e1;
+        border-radius: 16px;
+        padding: 40px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: #ffffff;
+        position: relative;
+    }
+
+        .image-upload-area:hover {
+            border-color: #2a9d8f;
+            background: #f0fdfa;
+        }
+
+        .image-upload-area.dragover {
+            border-color: #2a9d8f;
+            background: #f0fdfa;
+            transform: scale(1.02);
+        }
+
+        .image-upload-area.has-image {
+            border-color: #2a9d8f;
+            background: #f0fdfa;
+            padding: 20px;
+        }
+
+    .upload-icon i {
+        font-size: 3.5rem;
+        color: #cbd5e1;
+        margin-bottom: 12px;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .btn-browse {
+        padding: 10px 28px;
+        background: #0f3b5e;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .btn-browse:hover {
+            background: #1a4f77;
+            transform: translateY(-2px);
+        }
+
+    .image-preview-container {
+        margin-top: 16px;
+        min-height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .image-preview-item {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid #2a9d8f;
+        max-width: 250px;
+        width: 100%;
+        background: #ffffff;
+        transition: all 0.3s;
+    }
+
+        .image-preview-item:hover {
+            transform: scale(1.02);
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .image-preview-item .remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(231, 111, 81, 0.9);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .image-preview-item .remove-btn:hover {
+                background: #e76f51;
+                transform: scale(1.1);
+            }
+
+        .image-preview-item .file-name {
+            padding: 8px 12px;
+            background: #f8fafc;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #475569;
+            border-top: 1px solid #e2e8f0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+    .upload-info {
+        margin-top: 12px;
+        font-size: 0.9rem;
+        color: #64748b;
+        text-align: center;
+    }
+
+        .upload-info span {
+            font-weight: 600;
+            color: #0f3b5e;
+        }
+
+    .btn-register {
+        width: 100%;
+        padding: 14px;
+        background: #0f3b5e;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+        .btn-register:hover {
+            background: #1a4f77;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(15, 59, 94, 0.25);
+        }
+
+        .btn-register:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+    .register-footer {
+        text-align: center;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+        .register-footer p {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-bottom: 0;
+        }
+
+            .register-footer p i {
+                color: #2a9d8f;
+                margin-right: 6px;
+            }
+
+   
+    @@media (max-width: 768px) {
+        .register-card {
+            padding: 25px 20px;
+            margin: 0 16px;
+        }
+
+        .back-to-home {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .image-preview-container {
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        }
+
+        .location-picker {
+            flex-direction: column;
+        }
+
+        .location-input-group {
+            width: 100%;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .register-card {
+            padding: 20px 14px;
+            margin: 0 10px;
+        }
+
+        .image-upload-area {
+            padding: 25px 15px;
+        }
+
+        .checkbox-label {
+            padding: 8px 10px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+   
+
+    var map;
+    var marker;
+    var currentLat = 22.3384;
+    var currentLng = 91.8321;
+    var currentCity = "Chittagong";
+
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        initMap(currentLat, currentLng);
+    });
+
+    function initMap(lat, lng) {
+       
+        if (map) {
+            map.remove();
+        }
+
+        map = L.map('mapContainer').setView([lat, lng], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        
+        var icon = L.divIcon({
+            html: '<i class="fas fa-map-marker-alt" style="color:#e76f51; font-size:2rem; text-shadow:0 2px 4px rgba(0,0,0,0.3);"></i>',
+            className: '',
+            iconSize: [30, 42],
+            iconAnchor: [15, 42]
+        });
+
+        marker = L.marker([lat, lng], { draggable: true, icon: icon }).addTo(map);
+
+       
+        marker.on('dragend', function(e) {
+            var pos = marker.getLatLng();
+            updateCoordinates(pos.lat, pos.lng);
+            reverseGeocode(pos.lat, pos.lng);
+        });
+
+        map.on('click', function(e) {
+            marker.setLatLng(e.latlng);
+            updateCoordinates(e.latlng.lat, e.latlng.lng);
+            reverseGeocode(e.latlng.lat, e.latlng.lng);
+        });
+
+        
+        document.getElementById('mapContainer').style.display = 'block';
+    }
+
+    function updateCoordinates(lat, lng) {
+        currentLat = lat;
+        currentLng = lng;
+        document.getElementById('latitude').value = lat.toFixed(6);
+        document.getElementById('longitude').value = lng.toFixed(6);
+        document.getElementById('coordDisplay').innerHTML = '📍 Location: <strong>' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '</strong> (' + currentCity + ')';
+    }
+
+    function reverseGeocode(lat, lng) {
+        var url = 'https://nominatim.openstreetmap.org/reverse?lat=' + lat + '&lon=' + lng + '&format=json&zoom=10';
+
+        fetch(url)
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data && data.address) {
+                    var city = '';
+                    if (data.address.city) city = data.address.city;
+                    else if (data.address.town) city = data.address.town;
+                    else if (data.address.village) city = data.address.village;
+                    else if (data.address.county) city = data.address.county;
+                    else if (data.address.state) city = data.address.state;
+
+                    if (city) {
+                        currentCity = city;
+                        document.getElementById('cityName').value = city;
+                        document.getElementById('coordDisplay').innerHTML = '📍 Location: <strong>' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '</strong> (' + city + ')';
+                    }
+                }
+            })
+            .catch(function() {
+                
+            });
+    }
+
+    function searchLocation() {
+        var query = document.getElementById('locationSearch').value.trim();
+        if (!query) return;
+
+        var url = 'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(query) + '&format=json&limit=1';
+
+        fetch(url)
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data && data.length > 0) {
+                    var lat = parseFloat(data[0].lat);
+                    var lng = parseFloat(data[0].lon);
+                    var displayName = data[0].display_name || query;
+
+                   
+                    var parts = displayName.split(',');
+                    var city = parts[parts.length - 2] || parts[0] || query;
+                    city = city.trim();
+
+                    currentCity = city;
+                    document.getElementById('cityName').value = city;
+                    document.getElementById('locationSearch').value = city;
+
+                   
+                    map.setView([lat, lng], 13);
+                    marker.setLatLng([lat, lng]);
+                    updateCoordinates(lat, lng);
+                    document.getElementById('coordDisplay').innerHTML = '📍 Location: <strong>' + lat.toFixed(6) + ', ' + lng.toFixed(6) + '</strong> (' + city + ')';
+                } else {
+                    showToast('⚠️ Location not found. Please try again.');
+                }
+            })
+            .catch(function() {
+                showToast('⚠️ Error searching location. Please try again.');
+            });
+    }
+
+    function getCurrentLocationForMap() {
+        if (!navigator.geolocation) {
+            showToast('⚠️ Geolocation is not supported by your browser');
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+
+                map.setView([lat, lng], 15);
+                marker.setLatLng([lat, lng]);
+                updateCoordinates(lat, lng);
+                reverseGeocode(lat, lng);
+                showToast('📍 Location detected!');
+            },
+            function(error) {
+                var msg = 'Unable to detect location. ';
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        msg += 'Please allow location access.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        msg += 'Location information unavailable.';
+                        break;
+                    case error.TIMEOUT:
+                        msg += 'Location request timed out.';
+                        break;
+                    default:
+                        msg += 'Please search manually.';
+                }
+                showToast('⚠️ ' + msg);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    }
+
+    
+    document.getElementById('locationSearch').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            searchLocation();
+        }
+    });
+
+    
+
+    var selectedFile = null;
+
+    function handleFileSelect(event) {
+        var file = event.target.files[0];
+        if (file) {
+            addFile(file);
+        }
+        event.target.value = '';
+    }
+
+    function addFile(file) {
+        if (!file.type.startsWith('image/')) {
+            showToast('⚠️ Please select an image file (JPG, PNG)');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            showToast('⚠️ File size should be less than 5MB');
+            return;
+        }
+
+        selectedFile = file;
+        updatePreview();
+        updateStatus();
+        document.querySelector('.image-upload-area').classList.add('has-image');
+        document.getElementById('imageError').textContent = '';
+    }
+
+    function removeFile() {
+        selectedFile = null;
+        updatePreview();
+        updateStatus();
+        document.querySelector('.image-upload-area').classList.remove('has-image');
+        document.getElementById('fileInput').value = '';
+    }
+
+    function updatePreview() {
+        var container = document.getElementById('imagePreviewContainer');
+
+        if (!selectedFile) {
+            container.innerHTML = '<p style="color:#94a3b8; padding:20px;">No image selected</p>';
+            return;
+        }
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            container.innerHTML = `
+                    <div class="image-preview-item">
+                        <img src="${e.target.result}" alt="${selectedFile.name}">
+                        <button type="button" class="remove-btn" onclick="removeFile()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="file-name">${selectedFile.name}</div>
+                    </div>
+                `;
+        };
+        reader.readAsDataURL(selectedFile);
+    }
+
+    function updateStatus() {
+        var statusEl = document.getElementById('imageStatus');
+        var submitBtn = document.getElementById('submitBtn');
+
+        if (selectedFile) {
+            statusEl.innerHTML = '✅ Image selected: <strong>' + selectedFile.name + '</strong>';
+            statusEl.style.color = '#065f46';
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+        } else {
+            statusEl.innerHTML = '❌ No image selected';
+            statusEl.style.color = '#e76f51';
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+        }
+    }
+
+    
+    var dropArea = document.getElementById('dropArea');
+
+    dropArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+
+    dropArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+    });
+
+    dropArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        var files = e.dataTransfer.files;
+        if (files.length > 0) {
+            addFile(files[0]);
+        }
+    });
+
+    dropArea.addEventListener('click', function(e) {
+        if (e.target === this || e.target.closest('.upload-icon') || e.target.closest('h4') || e.target.closest('p')) {
+            document.getElementById('fileInput').click();
+        }
+    });
+
+   
+    function showToast(message) {
+        var toast = document.getElementById('customToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'customToast';
+            toast.style.cssText = 'position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #0f3b5e; color: white; padding: 14px 28px; border-radius: 12px; font-weight: 500; box-shadow: 0 8px 30px rgba(0,0,0,0.20); display: none; z-index: 999; animation: slideUp 0.3s ease; max-width: 90%; text-align: center;';
+            document.body.appendChild(toast);
+        }
+
+        toast.innerHTML = message;
+        toast.style.display = 'block';
+        setTimeout(function() {
+            toast.style.display = 'none';
+        }, 4000);
+    }
+
+    
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        if (!selectedFile) {
+            e.preventDefault();
+            document.getElementById('imageStatus').innerHTML = '❌ Please upload an image of your washroom';
+            document.getElementById('imageStatus').style.color = '#e76f51';
+            showToast('⚠️ Please upload an image of your washroom');
+            document.querySelector('.image-upload-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return false;
+        }
+
+        var lat = document.getElementById('latitude').value;
+        var lng = document.getElementById('longitude').value;
+        if (lat == 0 || lng == 0) {
+            e.preventDefault();
+            showToast('⚠️ Please select a location on the map');
+            return false;
+        }
+
+        return true;
+    });
+
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
+        document.getElementById('imageStatus').innerHTML = '❌ No image selected';
+        document.getElementById('imageStatus').style.color = '#e76f51';
+    });
+
+    console.log('🗺️ SE1 - Register with Map Location Picker Loaded');
+</script>
